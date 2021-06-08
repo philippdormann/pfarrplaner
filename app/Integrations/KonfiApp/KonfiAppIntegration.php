@@ -168,7 +168,6 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     protected function request($requestType, $path, $arguments = []): ResponseInterface
     {
-        $arguments['apikey'] = $this->apiKey;
         return $this->client->request(
             $requestType,
             $path,
