@@ -67,7 +67,7 @@ class KonfiAppIntegration extends AbstractIntegration
     public function __construct($apiKey)
     {
         $this->setApiKey($apiKey);
-        $this->setClient(new Client(['base_uri' => self::API_URL]));
+        $this->setClient(new Client(['base_uri' => self::API_URL, 'headers' => ["X-KonfiApp-Token" => $this->apiKey]]));
     }
 
     /**
@@ -101,7 +101,7 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     public function listEventTypes()
     {
-        return collect($this->requestData('verwaltung/veranstaltungen/list/')->payload->veranstaltungen);
+        return collect($this->fetchData('verwaltung/veranstaltungen/')->payload->veranstaltungen);
     }
 
     /**
@@ -113,11 +113,45 @@ class KonfiAppIntegration extends AbstractIntegration
      * @return mixed Response data field
      * @throws Exception
      */
-    protected function requestData($path, $arguments = [])
+    protected function postData($path, $arguments = [])
     {
         $response = $this->request('POST', $path, $arguments);
         if ($response->getStatusCode() != 200) {
-            throw new Exception ('Could not retrieve event types from KonfiApp.');
+            throw new Exception('Could not retrieve event types from KonfiApp.');
+        }
+        return json_decode((string)$response->getBody());
+    }
+    /**
+     * Send a GET request to the public API for KonfiApp and return the contents of the response's data field
+     *
+     * @param $requestType
+     * @param $path
+     * @param array $arguments
+     * @return mixed Response data field
+     * @throws Exception
+     */
+    protected function fetchData($path, $arguments = [])
+    {
+        $response = $this->request('GET', $path, $arguments);
+        if ($response->getStatusCode() != 200) {
+            throw new Exception('Could not perform GET operation at KonfiApp API.');
+        }
+        return json_decode((string)$response->getBody());
+    }
+    /**
+     * Send a DELETE request to the public API for KonfiApp and return the contents of the response's data field
+     *
+     * @param $requestType
+     * @param $path
+     * @param array $arguments
+     * @return mixed Response data field
+     * @throws Exception
+     */
+    protected function deleteData($path, $arguments = [])
+    {
+        $response = $this->request('DELETE', $path, $arguments);
+        if ($response->getStatusCode() != 200) {
+            throw new Exception('Could not perform DELETE operation at KonfiApp API.');
         }
         return json_decode((string)$response->getBody());
     }
@@ -178,8 +212,8 @@ class KonfiAppIntegration extends AbstractIntegration
     public function createQRCode(Service $service)
     {
         $serviceTime = Carbon::createFromTimeString($service->day->date->format('Y-m-d') . ' ' . $service->time);
-        return ($this->requestData(
-            'verwaltung/veranstaltungen/qr/add/',
+        return ($this->postData(
+            'verwaltung/veranstaltungen/qr/',
             [
                 'veranstaltungID' => $service->konfiapp_event_type,
                 'dateStart' => $service->day->date->format('Y.m.d'),
@@ -197,8 +231,8 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     public function deleteQRCodeByCode($code, $type)
     {
-        $codes = $this->requestData(
-            'verwaltung/veranstaltungen/qr/list/',
+        $codes = $this->fetchData(
+            'verwaltung/veranstaltungen/qr/',
             [
                 'veranstaltungID' => $type,
             ]
@@ -218,8 +252,8 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     public function deleteQRCode($id)
     {
-        $this->requestData(
-            'verwaltung/veranstaltungen/qr/delete/',
+        $this->deleteData(
+            'verwaltung/veranstaltungen/qr/',
             [
                 'id' => $id,
             ]
@@ -246,7 +280,7 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     public function listQRCodes()
     {
-        return $this->requestData('verwaltung/veranstaltungen/qr/list/', ['veranstaltungID' => 682])->detail;
+        return $this->fetchData('verwaltung/veranstaltungen/qr/', ['veranstaltungID' => 682])->detail;
     }
 
     /**
