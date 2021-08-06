@@ -129,6 +129,7 @@ Route::get('/services/add/{date}/{city}', ['uses' => 'ServiceController@add'])->
 
 Route::get('/reports', ['as' => 'reports.list', 'uses' => 'ReportsController@list']);
 Route::post('/reports/render/{report}', ['as' => 'reports.render', 'uses' => 'ReportsController@render']);
+Route::get('/reports/render/{report}', ['as' => 'reports.render.get', 'uses' => 'ReportsController@render']);
 Route::get('/report/{report}', ['as' => 'reports.setup', 'uses' => 'ReportsController@setup']);
 Route::get('/report/{report}/embed', ['as' => 'report.embed', 'uses' => 'ReportsController@embed'])->middleware('cors');
 Route::post('/report/{report}/{step}', ['as' => 'report.step', 'uses' => 'ReportsController@step']);
@@ -284,6 +285,7 @@ Route::get('/services/{service}/liturgy/download/{key}', 'LiturgyEditorControlle
 Route::post('/services/{service}/liturgy/download/{key}', 'LiturgyEditorController@download')->name('services.liturgy.download.post');
 Route::post('/services/{service}/liturgy', 'LiturgyEditorController@save')->name('services.liturgy.save');
 Route::get('/services/{service}/liturgy/sources', 'LiturgyEditorController@sources')->name('services.liturgy.sources');
+Route::get('/services/{service}/liturgy/sermons', 'LiturgyEditorController@sermons')->name('services.liturgy.sermons');
 Route::post('/services/{service}/liturgy/import/{source}', 'LiturgyEditorController@import')->name('services.liturgy.import');
 
 // liturgy blocks
@@ -352,3 +354,9 @@ Route::post('/streaming/{city}/activateBroadcast/{broadcast}', 'StreamingTrouble
 
 //manual
 Route::get('/manual/{routeName}', 'ManualController@page')->name('manual');
+
+// bible texts
+Route::get('/bible/text/{reference}/{version?}', 'BibleController@text')->name('bible.text');
+
+// csrf token: keep alive
+Route::get('/csrf-token', 'Auth\\LoginController@keepTokenAlive')->name('csrf.keepalive');

@@ -1,10 +1,9 @@
-<?php
-/**
+/*
  * Pfarrplaner
  *
  * @package Pfarrplaner
  * @author Christoph Fischer <chris@toph.de>
- * @copyright (c) 2020 Christoph Fischer, https://christoph-fischer.org
+ * @copyright (c) 2021 Christoph Fischer, https://christoph-fischer.org
  * @license https://www.gnu.org/licenses/gpl-3.0.txt GPL 3.0 or later
  * @link https://github.com/pfarrplaner/pfarrplaner
  * @version git: $Id$
@@ -28,30 +27,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace App\Integrations\KonfiApp;
+import moment from "moment/moment";
 
+function relative(date1, date2) {
+    if (!date1) return '';
+    if (!date2) return '';
 
-use App\Events\ServiceBeforeUpdate;
-use Illuminate\Support\Facades\Log;
+    let dayDiff = date2.diff(date1, 'days');
+    if (isNaN(dayDiff)) return '';
 
-class ServiceBeforeUpdateListener
-{
-
-    /**
-     * Handle the ServiceUpdated event
-     *
-     * @param ServiceBeforeUpdate $event
-     * @return void
-     */
-    public function handle(ServiceBeforeUpdate $event)
-    {
-        if (!isset($event->data['konfiapp_event_type'])) return;
-        if (KonfiAppIntegration::isActive($event->service->city)) {
-            KonfiAppIntegration::get($event->service->city)->handleServiceUpdate(
-                $event->service,
-                $event->data['konfiapp_event_type'] ?? ''
-            );
-        }
-    }
-
+    if (dayDiff == 0) return 'heute';
+    if (dayDiff == 1) return 'gestern';
+    if (dayDiff == 2) return 'vorgestern';
+    if (dayDiff < 6) return 'am '+date1.format('dddd');
+    if (dayDiff < 13) return 'letzten '+date1.format('dddd');
+    return 'am '+date1.format('dddd')+' vor '+Math.floor(dayDiff / 7)+' Wochen';
 }
+
+
+export default function (date1, date2) {
+    return relative(moment(date1, 'DD.MM.YYYY').locale('de'), moment());
+}
+

@@ -38,6 +38,17 @@
                 <span class="d-inline d-md-none fa fa-trash"></span>
                 <span class="d-none d-md-inline">Löschen</span>
             </button>
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle m-1" type="button" id="dropdownMenuButton"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        title="Dokumente herunterladen">
+                    <span class="fa fa-download"></span> Anträge
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#" @click.prevent="leaveRequestForm">Urlaubsantrag</a>
+                    <a class="dropdown-item" href="#" @click.prevent="travelRequestForm">Dienstreiseantrag</a>
+                </div>
+            </div>
         </template>
         <card>
             <card-header>Informationen zum Urlaub</card-header>
@@ -45,7 +56,7 @@
                 <date-range-input label="Zeitraum" :from="absence.from" :to="absence.to"
                                   @input="setDateRange"
                 />
-                <form-input label="Beschreibung" help="Grund der Abwesenheit"
+                <form-input label="Beschreibung" help="Grund der Abwesenheit" name="reason"
                             placeholder="z.B. Urlaub" v-model="absence.reason"/>
                 <fake-table :columns="[5,6,1]" :headers="['Vertreter:in', 'Zeitraum', '']"
                             collapsed-header="Vertreter:innen" class="mt-3" :key="myAbsence.replacements.length">
@@ -69,7 +80,7 @@
                     <button class="btn btn-light" @click.prevent="addReplacement">Vertretung hinzufügen</button>
                 </div>
                 <hr />
-                <form-textarea label="Notizen für die Vertretung" v-model="absence.replacement_notes" />
+                <form-textarea label="Notizen für die Vertretung" v-model="absence.replacement_notes" name="replacement_notes"/>
             </card-body>
         </card>
     </admin-layout>
@@ -124,6 +135,12 @@ export default {
             this.$inertia.delete(route('absences.destroy', {absence: this.myAbsence.id}, {
                 year: this.year, month: this.month
             }));
+        },
+        leaveRequestForm() {
+            window.location.href = route('reports.render.get', {report: 'leaveRequestForm', absence: this.myAbsence.id});
+        },
+        travelRequestForm() {
+            window.location.href = route('reports.render.get', {report: 'travelRequestForm', absence: this.myAbsence.id});
         }
     }
 }

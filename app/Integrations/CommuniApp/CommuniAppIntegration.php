@@ -34,6 +34,7 @@ namespace App\Integrations\CommuniApp;
 use App\City;
 use App\Integrations\AbstractIntegration;
 use App\Service;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
@@ -95,7 +96,10 @@ class CommuniAppIntegration extends AbstractIntegration
      */
     public function handleServiceCreated(Service $service)
     {
-        Log::debug('Creating CommuniApp service #'.$service->id, $this->getServiceArray($service));
+        if (!$this->mayPublish($service))  {
+            return;
+        }
+
         $response = $this->client->post(self::ROUTE_EVENT, ['body' => json_encode($this->getServiceArray($service))]);
         if ($response->getStatusCode() == 200) {
             $service->update(['communiapp_id' => json_decode($response->getBody())->id]);
@@ -104,12 +108,22 @@ class CommuniAppIntegration extends AbstractIntegration
 
     public function handleServiceUpdated(Service $service)
     {
+        if (!$this->mayPublish($service))  {
+            return;
+        }
+
         if (!$service->communiapp_id) {
             return $this->handleServiceCreated($service);
         };
-        Log::debug('Updating CommuniApp service for #'.$service->id, $this->getServiceArray($service));
         $response = $this->client->put(sprintf('%s/%s', self::ROUTE_EVENT, $service->communiapp_id),
                                        ['body' => json_encode($this->getServiceArray($service))]);
+    }
+
+    public function mayPublish(Service $service) {
+        if ($service->day->date <= Carbon::now()) return false;
+        if ((null === $service->communiapp_listing_start) && (Carbon::now() >= $service->day->date->subDay(8))) return true;
+        if ((null !== $service->communiapp_listing_start) && (Carbon::now() >= $service->communiapp_listing_start)) return true;
+        return false;
     }
 
     /**
@@ -135,8 +149,8 @@ class CommuniAppIntegration extends AbstractIntegration
     public function handleserviceDeleted(Service $service)
     {
         if (!$service->communiapp_id) return;
-        Log::debug('Deleting CommuniApp service for #'.$service->id, $this->getServiceArray($service));
         $response = $this->client->delete(sprintf('%s/%s', self::ROUTE_EVENT, $service->communiapp_id));
+        $service->update(['communiapp_id' => null]);
     }
 
 }

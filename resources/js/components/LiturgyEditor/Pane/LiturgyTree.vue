@@ -87,7 +87,7 @@
                         </div>
                     </div>
                     <details-pane v-if="block.editing == true" :service="service" :element="block"
-                                  :agenda-mode="agendaMode"/>
+                                  :agenda-mode="agendaMode" :markers="markers"/>
 
                     <draggable :list="block.items" group="items" class="liturgy-items-list"
                                v-bind:="{ghostClass: 'ghost-item'}" @start="focusOff" @end="saveState"
@@ -103,11 +103,13 @@
                                 </div>
                                 <div class="col-sm-4" v-if="item.data_type == 'sermon'">
                                     <div v-if="service.sermon === null">
-                                        <small>Für diesen Gottesdienst wurde noch keine Predigt angelegt.</small><br/>
+                                        <form-selectize v-if="sermons.length > 0" :options="sermons" id-key="id" title-key="title"
+                                        label="Bestehende Predigt auswählen" :settings="sermonSelectizeSettings" @input="setSermon($event, item)"/>
                                         <inertia-link :href="route('services.sermon.editor', {service: service.id})"
                                                       @click.stop=""
-                                                      title="Hier klicken, um die Predigt jetzt anzulegen"
-                                        >Jetzt anlegen
+                                                      class="btn btn-success"
+                                                      title="Hier klicken, um die Predigt jetzt anzulegen">
+                                            Neue Predigt anlegen
                                         </inertia-link>
                                     </div>
                                     <div v-else>
@@ -116,11 +118,19 @@
                                             {{ service.sermon.title }}<span
                                             v-if="service.sermon.subtitle">: {{ service.sermon.subtitle }}</span>
                                         </inertia-link>
+                                        <button class="btn btn-sm btn-light ml-1" @click="setSermon(null, item)"
+                                                title="Verknüpfung mit dieser Predigt aufheben">
+                                            <span class="fa fa-unlink"></span>
+                                        </button>
                                         <br/>
                                         <small>{{ service.sermon.reference }}</small>
                                     </div>
                                 </div>
-                                <div class="col-sm-4" v-else>{{ itemDescription(item) }}</div>
+                                <div class="col-sm-4" v-else>{{ itemDescription(item) }}
+                                    <span v-if="item.data.needs_replacement" class="badge" :class="dataReplacerClass(item)">
+                                        <span class="fa fa-user" :title="dataReplacerTitle(item)"></span>
+                                    </span>
+                                </div>
                                 <div class="col-sm-3 responsible-list"
                                      @click="editResponsibles(blockIndex, itemIndex, item)">
                                     <people-pane v-if="item.editResponsibles==true" :service="service" :element="item"
@@ -146,7 +156,7 @@
                                 </div>
                             </div>
                             <details-pane v-if="item.editing == true" :service="service" :element="item"
-                                          :agenda-mode="agendaMode"/>
+                                          :agenda-mode="agendaMode" :markers="markers" />
                         </div>
                     </draggable>
                 </div>
@@ -201,10 +211,12 @@ import Selectize from "vue2-selectize";
 import Modal from "../../Ui/modals/Modal";
 import LiturgySheetLink from "../Elements/LiturgySheetLink";
 import FullTextLiturgySheetConfiguration from "../LiturgySheets/FullTextLiturgySheetConfiguration";
+import FormSelectize from "../../Ui/forms/FormSelectize";
 
 export default {
     name: "LiturgyTree",
     components: {
+        FormSelectize,
         LiturgySheetLink,
         Modal,
         LiturgyBlock,
@@ -233,6 +245,10 @@ export default {
             type: Object,
             default: [],
         },
+        markers: {
+            type: Object,
+            default: null,
+        }
     },
     /**
      * Load existing sources
@@ -246,6 +262,8 @@ export default {
             this.sourceWait = 'Ablaufelemente importieren...';
             this.importFrom = -1;
         }
+
+        this.sermons = (await axios.get(route('services.liturgy.sermons', this.service.id))).data;
     },
     mounted() {
         if (this.autoFocusItem && this.autoFocusBlock) {
@@ -310,6 +328,10 @@ export default {
             sourceWait: 'Bitte warten, Quellen werden geladen...',
             modalOpen: false,
             dialogs: dialogs,
+            sermons: [],
+            sermonSelectizeSettings: {
+                searchField: ['title'],
+            }
         }
     },
     methods: {
@@ -526,6 +548,66 @@ export default {
         downloadConfiguredSheet(sheet) {
             document.getElementById('frm'+sheet.key).submit();
             this.dialogs[sheet.key] = false;
+        },
+        dataReplacerTitle(item) {
+            if (!item.data.needs_replacement) return '';
+            var t = 'Dieses Element wird mit Hilfe von persönlichen Daten ';
+            var error = '';
+            var replacerObject = null;
+            this.service[item.data.needs_replacement+'s'].forEach(obj => {
+                if (obj.id == item.data.replacement) replacerObject = obj;
+            })
+            console.log('replacerObject', replacerObject, item.data.needs_replacement+'s');
+            switch (item.data.needs_replacement) {
+                case 'funeral':
+                    t += 'für eine Bestattung';
+                    if (!item.data.replacement) {
+                        error = 'Es ist noch keine Bestattung ausgewählt!';
+                        if (this.service.funerals.length == 0) error += ' Dem Gottesdienst sind keine Bestattungen zugeordnet!';
+                    } else {
+                        t +=' ('+replacerObject.buried_name+')';
+                    }
+                    break;
+                case 'baptism':
+                    t += 'für eine Taufe';
+                    if (!item.data.replacement) {
+                        error = 'Es ist noch keine Taufe ausgewählt!';
+                        if (this.service.baptisms.length == 0) error += ' Dem Gottesdienst sind keine Taufen zugeordnet!';
+                    } else {
+                        t +=' ('+replacerObject.candidate_name+')';
+                    }
+                    break;
+                case 'wedding':
+                    t += 'für eine Trauung';
+                    if (!item.data.replacement) {
+                        error = 'Es ist noch keine Trauung ausgewählt!';
+                        if (this.service.weddings.length == 0) error += ' Dem Gottesdienst sind keine Trauungen zugeordnet!';
+                    } else {
+                        t +=' ('+replacerObject.spouse1_name+' / '+replacerObject.spouse2_name+')';
+                    }
+                    break;
+            };
+            t += ' angepasst.'+(error ? ' '+error : '');
+            return (t)
+        },
+        dataReplacerClass(item) {
+            if (!item.data.needs_replacement) return '';
+            if (!item.data.replacement) return 'badge-danger';
+            return 'badge-success';
+        },
+        setSermon(e, item) {
+            this.service.sermon_id = e;
+            axios.patch(route('services.update', this.service.id), {sermon_id: e ?? null});
+            if (e) {
+                this.sermons.forEach(sermon => {
+                    if (sermon.id == e) this.service.sermon = sermon;
+                });
+            } else {
+                this.service.sermon = null;
+            }
+            item.editing = false;
+            this.focusedItem = null;
+            this.focusedBlock = null;
         }
     }
 }
