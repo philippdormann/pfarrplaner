@@ -1,13 +1,13 @@
 <template>
     <admin-layout enable-control-sidebar="true" :title="title(date)">
         <template #navbar-left>
-            <calendar-nav-top :date="new Date(date)" :years="years" @collapseall="toggleCollapse"></calendar-nav-top>
+            <calendar-nav-top :date="new Date(date)" :years="years" @collapseall="toggleCollapse" :orientation="orientation"></calendar-nav-top>
         </template>
         <template #control-sidebar>
             <calendar-nav-control-sidebar :date="new Date(date)" :cities="cities"/>
         </template>
         <div class="alert alert-info" v-if="loading > 0"><span class="fa fa-spin fa-spinner"></span> Daten für {{ loading }} Orte werden geladen ...</div>
-        <div class="d-none d-md-inline">
+        <div class="d-none d-md-inline calendar-full-container">
             <calendar-pane-horizontal v-if="orientation == 'horizontal'"
                                       :date="date" :days="myDays" :cities="cityList" :services="services" :years="years"
                                       :key="collapseKey"  :collapseState="collapseState"
@@ -101,5 +101,9 @@ export default {
 <style scoped>
 th, td {
     vertical-align: top;
+}
+
+.calendar-full-container {
+    font-size: .9em;
 }
 </style>

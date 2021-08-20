@@ -30,12 +30,14 @@
 
 namespace App;
 
+use App\Calendars\SyncEngines\AbstractSyncEngine;
 use App\Traits\HasAttachmentsTrait;
 use App\Traits\HasCommentsTrait;
 use AustinHeap\Database\Encryption\Traits\HasEncryptedAttributes;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Class Funeral
@@ -95,6 +97,11 @@ class Funeral extends Model
         'professional_life',
         'birth_place',
         'death_place',
+        'processed',
+        'needs_dimissorial',
+        'dimissorial_issuer',
+        'dimissorial_requested',
+        'dimissorial_received',
     ];
 
     /**
@@ -106,6 +113,8 @@ class Funeral extends Model
         'appointment',
         'dob',
         'dod',
+        'dimissorial_requested',
+        'dimissorial_received',
     ];
 
     /** @var array */
@@ -145,7 +154,7 @@ class Funeral extends Model
         'death_place',
     ];
 
-    protected $appends = ['age'];
+    protected $appends = ['age', 'dimissorialUrl'];
     protected $with = ['attachments'];
 
     /**
@@ -221,4 +230,39 @@ class Funeral extends Model
     {
         return $this->age();
     }
+
+    /**
+     * Generate a record for sync'ing to external calendars
+     * @return array[]|null
+     */
+    public function getPreparationEvent()
+    {
+        if (!$this->appointment) return null;
+
+        $key = 'funeral_prep_'.$this->id;
+
+        $record = [
+            'startDate' => $this->appointment->copy()->shiftTimezone('Europe/Berlin')->setTimezone('UTC'),
+            'endDate' => $this->appointment->copy()->shiftTimezone('Europe/Berlin')->setTimezone('UTC')->addHour(1),
+            'title' => 'Trauergespräch '.$this->buried_name,
+            'description' =>
+                '<p>'.$this->type.' am '.$this->service->day->date->format('d.m.Y').' um '.$this->service->timeText().' ('.$this->service->locationText().')</p>'
+                .'<p><a href="'.route('funerals.edit', $this->id).'">Bestattung im Pfarrplaner öffnen</a></p>'
+                .'<p>Kontakt: '.nl2br($this->relative_contact_data).'</p>'
+                .AbstractSyncEngine::AUTO_WARNING,
+            'location' => $this->relative_address.', '.$this->relative_zip.' '.$this->relative_city,
+        ];
+        return [$key => $record];
+    }
+
+    /**
+     * Get the signed url for an online dimissorial
+     * @return string
+     */
+    public function getDimissorialUrlAttribute()
+    {
+        return URL::signedRoute('dimissorial.show', ['type' => 'beerdigung', 'id' => $this->id]);
+    }
+
+
 }

@@ -57,9 +57,17 @@
                     </template>
                 </checked-process-item>
             </div>
+            <dimissorial-check-item :parent="baptism" />
             <div>
                 <checked-process-item :check="baptism.hasRegistrationForm" positive="Anmeldung aufgenommen und Anmeldeformular erstellt" negative="Anmeldeformular noch nicht erstellt" />
                 <checked-process-item :check="baptism.signed" positive="Anmeldung unterschrieben" negative="Anmeldung noch nicht unterschrieben" />
+            </div>
+            <div>
+                <checked-process-item :check="baptism.text" positive="Taufspruch" negative="Taufspruch noch nicht eingetragen">
+                    <template slot="positive">
+                        <bible-reference title="Taufspruch:" :liturgy="{ ref: myBaptism.text }" liturgy-key="ref" inline="1" />
+                    </template>
+                </checked-process-item>
             </div>
             <div>
                 <checked-process-item :check="baptism.docs_ready" positive="Urkunden erstellt" negative="Urkunden noch nicht erstellt">
@@ -68,9 +76,16 @@
                     </template>
                 </checked-process-item>
             </div>
+            <div>
+                <checked-process-item :check="baptism.processed" positive="Ins Kirchenbuch eingetragen" negative="Noch nicht ins Kirchenbuch eingetragen" />
+            </div>
         </div>
         <div class="col-md-3">
-            <attachment  v-for="(attachment,key,index) in baptism.attachments" :key="'attachment'+key" :attachment="attachment" />
+            <file-drag-receiver multi
+                                v-model="myBaptism.attachments"
+                                :upload-route="route('baptism.attach', myBaptism.id)" :key="Object.keys(myBaptism.attachments).length">
+                <attachment  v-for="(attachment,key,index) in myBaptism.attachments" :key="'attachment'+key" :attachment="attachment" />
+            </file-drag-receiver>
         </div>
         <div class="col-md-1 text-right">
             <inertia-link class="btn btn-sm btn-light" title="Taufe bearbeiten"
@@ -87,14 +102,25 @@ import CheckedProcessItem from "../../Ui/elements/CheckedProcessItem";
 import Attachment from "../../Ui/elements/Attachment";
 import DetailsInfo from "../../Service/DetailsInfo";
 import Participants from "../../Calendar/Service/Participants";
+import FileDragReceiver from "../../Ui/elements/FileDragReceiver";
+import BibleReference from "../../LiturgyEditor/Elements/BibleReference";
+import DimissorialCheckItem from "../../RiteEditors/DimissorialCheckItem";
 
 export default {
     name: "Baptism",
     components: {
+        DimissorialCheckItem,
+        BibleReference,
+        FileDragReceiver,
         Participants,
         DetailsInfo,
         Attachment,
         CheckedProcessItem,
+    },
+    data() {
+        return {
+            myBaptism: this.baptism,
+        }
     },
     props: {
         baptism: Object,

@@ -30,8 +30,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Attachment;
 use App\City;
 use App\Day;
+use App\Events\ServiceUpdated;
+use App\Liturgy\PronounSets\PronounSets;
 use App\Location;
 use App\Service;
 use App\Traits\HandlesAttachmentsTrait;
@@ -46,6 +49,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Inertia\Inertia;
 
 /**
  * Class WeddingController
@@ -74,8 +78,6 @@ class WeddingController extends Controller
      */
     public function create($serviceId)
     {
-        $service = Service::find($serviceId);
-        return view('weddings.create', compact('service'));
     }
 
     /**
@@ -136,11 +138,12 @@ class WeddingController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param Wedding $wedding
-     * @return Response
+     * @return \Inertia\Response
      */
     public function edit(Wedding $wedding)
     {
-        return view('weddings.edit', compact('wedding'));
+        $pronounSets = PronounSets::toArray();
+        return Inertia::render('Rites/WeddingEditor', compact('wedding', 'pronounSets'));
     }
 
     /**
@@ -153,25 +156,14 @@ class WeddingController extends Controller
     public function update(Request $request, Wedding $wedding)
     {
         $data = $this->validateRequest($request);
-        $serviceId = $data['service_id'] = $data['service'];
+        if (isset($data['service'])) $serviceId = $data['service_id'] = $data['service'];
         $wedding->update($data);
-        if ($request->hasFile('registration_document') || ($request->get('removeAttachment') == 1)) {
-            if ($wedding->registration_document != '') {
-                Storage::delete($wedding->registration_document);
-            }
-            $wedding->registration_document = '';
-        }
-        if ($request->hasFile('registration_document')) {
-            $wedding->registration_document = $request->file('registration_document')->store('baptism', 'public');
-        }
-        $wedding->save();
 
         $wedding->service->setDefaultOfferingValues();
         $wedding->service->save();
-        $this->handleAttachments($request, $wedding);
+        ServiceUpdated::dispatch($wedding->service, $wedding->service->participants);
 
-
-        return redirect(route('services.edit', ['service' => $serviceId, 'tab' => 'rites']));
+        return redirect(route('services.edit', ['service' => $wedding->service->id, 'tab' => 'rites']));
     }
 
     /**
@@ -326,6 +318,36 @@ class WeddingController extends Controller
         return json_encode(true);
     }
 
+    /**
+     * @param Request $request
+     * @param Wedding $wedding
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function attach(Request $request, Wedding $wedding)
+    {
+        $this->handleAttachments($request, $wedding);
+        $wedding->refresh();
+        return response()->json($wedding->attachments);
+    }
+
+    /**
+     * @param Request $request
+     * @param Wedding $wedding
+     * @param Attachment $attachment
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
+    public function detach(Request $request, Wedding $wedding, Attachment $attachment)
+    {
+        $file = $attachment->file;
+        $wedding->attachments()->where('id', $attachment->id)->delete();
+        Storage::delete($file);
+        $attachment->delete();
+        $wedding->refresh();
+        return response()->json($wedding->attachments);
+    }
+
+
 
     protected function validateRequest(Request $request)
     {
@@ -348,6 +370,31 @@ class WeddingController extends Controller
                 'docs_ready' => 'nullable|bool',
                 'docs_where' => 'nullable|string',
                 'appointment' => 'nullable|date_format:"d.m.Y H:i"',
+                'spouse1_dob' => 'nullable|date_format:"d.m.Y"',
+                'spouse1_address' => 'nullable|string',
+                'spouse1_zip' => 'nullable|string',
+                'spouse1_city' => 'nullable|string',
+                'spouse1_needs_dimissorial' => 'nullable|int',
+                'spouse1_dimissorial_issuer' => 'nullable|string',
+                'spouse1_dimissorial_requested' => 'nullable|date_format:"d.m.Y"',
+                'spouse1_dimissorial_received' => 'nullable|date_format:"d.m.Y"',
+                'spouse2_dob' => 'nullable|date_format:"d.m.Y"',
+                'spouse2_address' => 'nullable|string',
+                'spouse2_zip' => 'nullable|string',
+                'spouse2_city' => 'nullable|string',
+                'spouse2_needs_dimissorial' => 'nullable|int',
+                'spouse2_dimissorial_issuer' => 'nullable|string',
+                'spouse2_dimissorial_requested' => 'nullable|date_format:"d.m.Y"',
+                'spouse2_dimissorial_received' => 'nullable|date_format:"d.m.Y"',
+                'needs_permission' => 'nullable|int',
+                'permission_requested' => 'nullable|date_format:"d.m.Y"',
+                'permission_received' => 'nullable|date_format:"d.m.Y"',
+                'music' => 'nullable|string',
+                'gift' => 'nullable|string',
+                'flowers' => 'nullable|string',
+                'docs_format' => 'nullable|int',
+                'notes' => 'nullable|string',
+                'processed' => 'nullable|integer|between:0,1'
             ]
         );
         if (!isset($data['text'])) $data['text'] = '';
@@ -356,7 +403,18 @@ class WeddingController extends Controller
         if (!isset($data['registered'])) $data['registered'] = 0;
         if (!isset($data['signed'])) $data['signed'] = 0;
         if (!isset($data['docs_ready'])) $data['docs_ready'] = 0;
-        if (isset($data['appointment'])) $data['appointment'] = Carbon::createFromFormat('d.m.Y H:i', $data['appointment']);
+
+        // dates
+        if (isset($data['appointment'])) $data['appointment'] = Carbon::createFromFormat('d.m.Y H:i', $data['appointment'])->shiftTimezone('Europe/Berlin')->setTimeZone('UTC');
+        if (isset($data['spouse1_dob'])) $data['spouse1_dob'] = Carbon::createFromFormat('d.m.Y', $data['spouse1_dob']);
+        if (isset($data['spouse1_dimissorial_requested'])) $data['spouse1_dimissorial_requested'] = Carbon::createFromFormat('d.m.Y', $data['spouse1_dimissorial_requested']);
+        if (isset($data['spouse1_dimissorial_received'])) $data['spouse1_dimissorial_received'] = Carbon::createFromFormat('d.m.Y', $data['spouse1_dimissorial_received']);
+        if (isset($data['spouse2_dob'])) $data['spouse2_dob'] = Carbon::createFromFormat('d.m.Y', $data['spouse2_dob']);
+        if (isset($data['spouse2_dimissorial_requested'])) $data['spouse2_dimissorial_requested'] = Carbon::createFromFormat('d.m.Y', $data['spouse2_dimissorial_requested']);
+        if (isset($data['spouse2_dimissorial_received'])) $data['spouse2_dimissorial_received'] = Carbon::createFromFormat('d.m.Y', $data['spouse2_dimissorial_received']);
+        if (isset($data['permission_requested'])) $data['permission_requested'] = Carbon::createFromFormat('d.m.Y', $data['permission_requested']);
+        if (isset($data['permission_received'])) $data['permission_received'] = Carbon::createFromFormat('d.m.Y', $data['permission_received']);
+
         return $data;
     }
 }

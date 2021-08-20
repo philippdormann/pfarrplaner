@@ -32,7 +32,7 @@
         <h2>{{ title }}</h2>
         <div v-if="baptisms.length == 0" class="alert alert-info">
             <span
-                v-if="(settings.homeScreenTabsConfig.baptisms.mine || false)">Zur Zeit hast du keine Taufen geplant.</span>
+                v-if="(config.mine || false)">Zur Zeit hast du keine Taufen geplant.</span>
             <span v-else>Zur Zeit sind keine Taufen geplant.</span>
         </div>
         <div v-else>
@@ -55,14 +55,6 @@
                 <baptism  v-for="(baptism, baptismIndex) in baptismRequests" :baptism="baptism" :key="baptism.id"
                           class="mb-3 p-1" :class="{'stripe-odd': (baptismIndex % 2 == 0)}"/>
             </fake-table>
-            <div class="d-none d-md-block fluid-blocks-header py-2">
-                <div class="row">
-                    <div class="col-md-2">Täufling</div>
-                    <div class="col-md-4">Informationen zur Taufe</div>
-                    <div class="col-md-3">Dokumente</div>
-                    <div class="col-md-1"></div>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -75,7 +67,7 @@ export default {
     name: "BaptismsTab",
     components: {FakeTable, Baptism},
     props: {
-        title: String, description: String, user: Object, settings: Object, baptisms: Array, baptismRequests: Array,
+        title: String, description: String, user: Object, config: Object, baptisms: Array, baptismRequests: Array,
     },
 }
 </script>

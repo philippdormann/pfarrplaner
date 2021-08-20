@@ -2,6 +2,172 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.72.2](https://github.com/pfarrplaner/pfarrplaner/compare/v1.72.1...v1.72.2) (2021-08-20)
+
+
+### Features
+
+* Calendar always shows full name ([a23e4f7](https://github.com/pfarrplaner/pfarrplaner/commits/a23e4f7dbb4da175e8105556597e4e4178028ff4)), closes [#132](https://github.com/pfarrplaner/pfarrplaner/issues/132)
+
+
+### Bug Fixes
+
+* Auto-select first baptism/funeral/wedding when rendering LiturgicItems where no association is selected ([a08146f](https://github.com/pfarrplaner/pfarrplaner/commits/a08146f45e48c73aa1f63c84fc3ce083e0ccd7b5)), closes [#89](https://github.com/pfarrplaner/pfarrplaner/issues/89)
+* Empty screen after login when certain settings are not set ([6e06e2e](https://github.com/pfarrplaner/pfarrplaner/commits/6e06e2e014289472650211f89c20f27d579aa959)), closes [#130](https://github.com/pfarrplaner/pfarrplaner/issues/130) [#131](https://github.com/pfarrplaner/pfarrplaner/issues/131)
+
+### [1.72.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.72.0...v1.72.1) (2021-08-18)
+
+
+### Bug Fixes
+
+* Timezone error in Funeral list view ([7b9f603](https://github.com/pfarrplaner/pfarrplaner/commits/7b9f603ed83fedea4f54b302f8e46fb07b8a3e23))
+
+## [1.72.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.71.0...v1.72.0) (2021-08-18)
+
+
+### Features
+
+* Add announcements as automated download ([d5a212c](https://github.com/pfarrplaner/pfarrplaner/commits/d5a212c623a4735f0b5acdadc59d7b85c3cea550))
+
+
+### Bug Fixes
+
+* External calendars do not update when only a rite record is edited ([0c17ef3](https://github.com/pfarrplaner/pfarrplaner/commits/0c17ef3d5193f2a142342acc32e53c940c80272e))
+
+## [1.71.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.70.0...v1.71.0) (2021-08-18)
+
+
+### Features
+
+* Add dimissorial fields to baptisms, weddings ([1a613da](https://github.com/pfarrplaner/pfarrplaner/commits/1a613da5fcd9fa22b9490dfa443b118016e05e0c)), closes [#109](https://github.com/pfarrplaner/pfarrplaner/issues/109)
+* Dimissorials can be granted online via a secure url ([ce60ef9](https://github.com/pfarrplaner/pfarrplaner/commits/ce60ef970e0b0a70533df9abb883134a07199cf9))
+* Mark rites as processed ([8ab6987](https://github.com/pfarrplaner/pfarrplaner/commits/8ab69876ea671029a56f2f559d184b7e91df55f7))
+
+
+### Bug Fixes
+
+* Checkboxes with isCheckedItem flag do not update correctly on input ([360ff2c](https://github.com/pfarrplaner/pfarrplaner/commits/360ff2ca97747ae252b18e5a1673fa4687d8bfe2))
+* Timezone and formatting problems with wedding appointment ([48f7737](https://github.com/pfarrplaner/pfarrplaner/commits/48f773740dff77014768da7d32eae17139eddd34))
+
+## [1.70.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.69.2...v1.70.0) (2021-08-17)
+
+
+### Features
+
+* Bible text field is now present in all rites ([d4698a4](https://github.com/pfarrplaner/pfarrplaner/commits/d4698a42ceb5e7170d8c3459d6aea64055522f61))
+* New vue-based WeddingEditor ([ec42b4f](https://github.com/pfarrplaner/pfarrplaner/commits/ec42b4f5294ff6c009c5a74e45674b70698b69de))
+* Publicly viewable plan for individual ministries ([14c3752](https://github.com/pfarrplaner/pfarrplaner/commits/14c37520ef4774433f44f3da612373695b8dfd15))
+
+
+### Bug Fixes
+
+* Tests do not work any more on Laravel 8.x ([72a5852](https://github.com/pfarrplaner/pfarrplaner/commits/72a58520b9e32e3f4731512daa406e18ea0d333b))
+
+### [1.69.2](https://github.com/pfarrplaner/pfarrplaner/compare/v1.69.1...v1.69.2) (2021-08-12)
+
+
+### Bug Fixes
+
+* exchange sync fails when root calendar folder is selected as target ([14e0fe1](https://github.com/pfarrplaner/pfarrplaner/commits/14e0fe10d3f3124dc278e2f38f8bf07d9d4ac788))
+
+### [1.69.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.69.0...v1.69.1) (2021-08-12)
+
+
+### Bug Fixes
+
+* Root calendar does not show up in exchange calendar list ([f4ebf8a](https://github.com/pfarrplaner/pfarrplaner/commits/f4ebf8a911ea4ff531cdee270a546e883aa2bbe3)), closes [#127](https://github.com/pfarrplaner/pfarrplaner/issues/127)
+
+## [1.69.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.68.0...v1.69.0) (2021-08-12)
+
+
+### Features
+
+* Allow drag/drop upload directly into baptism/funeral/wedding attachment lists ([943a828](https://github.com/pfarrplaner/pfarrplaner/commits/943a828c48f91f6d86af3979d72fa6070898841f))
+* Better use of space in Calendar ([3ce5039](https://github.com/pfarrplaner/pfarrplaner/commits/3ce5039f226842736d2dce0764eff7778a8015e2)), closes [#114](https://github.com/pfarrplaner/pfarrplaner/issues/114)
+* Use today button to scroll in vertical calendar view when month is current ([ffcadd6](https://github.com/pfarrplaner/pfarrplaner/commits/ffcadd68d929698c3a985bd5edbb5572038a2b36))
+
+
+### Bug Fixes
+
+* BaptismsTab has extraneous header line ([eaef551](https://github.com/pfarrplaner/pfarrplaner/commits/eaef551f8c124248d8aaade04ef250bef267c2be))
+* Tabs try to access obsolete config structure ([f71f6eb](https://github.com/pfarrplaner/pfarrplaner/commits/f71f6eb59b80e9ce7d163bacb78614304494547f))
+
+## [1.68.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.67.0...v1.68.0) (2021-08-12)
+
+
+### Features
+
+* Better labels in ProfileEditor ([9710d8f](https://github.com/pfarrplaner/pfarrplaner/commits/9710d8f6c51e66314a80f890d1a9a3c840b741ff))
+
+
+### Bug Fixes
+
+* A4/A5 LiturgySheets crash when psalm item is empty ([5b3ff41](https://github.com/pfarrplaner/pfarrplaner/commits/5b3ff41dd4dadbf93a116982915085841226e4aa)), closes [#115](https://github.com/pfarrplaner/pfarrplaner/issues/115)
+* Remove duplicate route names for compliance with Laravel 7 ([9f6f8fb](https://github.com/pfarrplaner/pfarrplaner/commits/9f6f8fb837803cdc734782070ff7ac7737f2ee1b))
+
+## [1.67.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.66.2...v1.67.0) (2021-08-12)
+
+
+### Features
+
+* Use separate queued jobs to sync/delete services on CalendarConnections ([a79f772](https://github.com/pfarrplaner/pfarrplaner/commits/a79f77250640a7672b0962efb953aaccd3aa3038))
+
+### [1.66.2](https://github.com/pfarrplaner/pfarrplaner/compare/v1.66.1...v1.66.2) (2021-08-11)
+
+
+### Bug Fixes
+
+* Cannot use Auth::user() in queued job ([5fde117](https://github.com/pfarrplaner/pfarrplaner/commits/5fde11783aa3722692ea1450483f34ce057020e9))
+* Wrong column name ([2230efd](https://github.com/pfarrplaner/pfarrplaner/commits/2230efd629cc3bf471e11f3897852277afb791f2))
+
+### [1.66.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.66.0...v1.66.1) (2021-08-11)
+
+
+### Bug Fixes
+
+* HomeScreen fails when showReplacements setting is not set ([87b34fb](https://github.com/pfarrplaner/pfarrplaner/commits/87b34fb55cd6fab3a686b4a57c315931c76f50dd))
+
+## [1.66.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.65.2...v1.66.0) (2021-08-11)
+
+
+### Features
+
+* Allow export to Exchange and Sharepoint calendars ([41d1d5f](https://github.com/pfarrplaner/pfarrplaner/commits/41d1d5f2d45e1a2937fa2c8aafa4987f5db86360))
+* Allow export to Exchange and Sharepoint calendars ([93b7818](https://github.com/pfarrplaner/pfarrplaner/commits/93b7818118248f7dec7525f71403d81fe3f8af0f))
+* New inertia-based UI for user profile ([93b126d](https://github.com/pfarrplaner/pfarrplaner/commits/93b126d35b378974fad03194b0a20688dec178fe))
+* Show current replacements on HomeScreen ([bdf3e47](https://github.com/pfarrplaner/pfarrplaner/commits/bdf3e47003d00827a74690a89ea053a56134c0a0)), closes [#124](https://github.com/pfarrplaner/pfarrplaner/issues/124) [#125](https://github.com/pfarrplaner/pfarrplaner/issues/125)
+
+
+### Bug Fixes
+
+* Add missing certificates ([0a34e45](https://github.com/pfarrplaner/pfarrplaner/commits/0a34e45663c8b23b54ac0cef0d68b94f8a7a9e09))
+* Add missing disabled state to TabHeader ([ce43743](https://github.com/pfarrplaner/pfarrplaner/commits/ce43743e7ff44fc092f33d42b82d7d82ac65c789))
+* HomeScreen does not set activeTab correctly ([cb65e86](https://github.com/pfarrplaner/pfarrplaner/commits/cb65e867e660ae18c4b129b28a11bb938b55c330))
+* Remove non-functional UI for CalendarConnections from user profile ([8dab1a1](https://github.com/pfarrplaner/pfarrplaner/commits/8dab1a1400bbb468fc93cc7d31456b2729ca534e))
+* SongEditor modal dialog is not wide enough ([b562dd7](https://github.com/pfarrplaner/pfarrplaner/commits/b562dd7eb7ac3d8fac573ab878e144d9010aaec1)), closes [#118](https://github.com/pfarrplaner/pfarrplaner/issues/118)
+* wrong composer dependency for staudenmeir/belongs-to-through ([c3c1d90](https://github.com/pfarrplaner/pfarrplaner/commits/c3c1d904b7f033274e55ca558d16d6a3819ec70f))
+
+### [1.65.2](https://github.com/pfarrplaner/pfarrplaner/compare/v1.65.1...v1.65.2) (2021-08-09)
+
+
+### Bug Fixes
+
+* MinistryRow does not select newly-created ministries in dropdown ([830d5b1](https://github.com/pfarrplaner/pfarrplaner/commits/830d5b1c77388913832171f0204d2fd991d7d9ab))
+
+### [1.65.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.65.0...v1.65.1) (2021-08-08)
+
+
+### Features
+
+* Add edit button to FuneralInfoPane ([ca3fd53](https://github.com/pfarrplaner/pfarrplaner/commits/ca3fd53d1c43d9fa1834f1fc07a61c0b51fabfde)), closes [#116](https://github.com/pfarrplaner/pfarrplaner/issues/116)
+
+
+### Bug Fixes
+
+* A5LiturgySheet fails when songbook is not correctly set on a song/psalm ([6379abb](https://github.com/pfarrplaner/pfarrplaner/commits/6379abbfef0baf6bc0a1682ecaa0ad6e3d592bbb))
+* FullTextLiturgySheet produces invalid document when text contains ampersand ([a452828](https://github.com/pfarrplaner/pfarrplaner/commits/a4528282448ad523067e1d601b91dce62e733794))
+* Relative address fields lose focus after each character input ([6b82914](https://github.com/pfarrplaner/pfarrplaner/commits/6b829148ccecd75292bb883ce2ef483c6b41f21e)), closes [#71](https://github.com/pfarrplaner/pfarrplaner/issues/71)
+
 ## [1.65.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.64.0...v1.65.0) (2021-07-09)
 
 

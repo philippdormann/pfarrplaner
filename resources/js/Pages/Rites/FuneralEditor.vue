@@ -40,10 +40,11 @@
         <card>
             <card-header>
                 <tab-headers>
-                    <tab-header title="Allgemeines" id="home" :active-tab="activeTab"/>
+                    <tab-header title="Allgemeines" id="home" :active-tab="activeTab" :is-checked-item="true"
+                                :check-value="(!myFuneral.needs_dimissorial) || (myFuneral.dimissorial_received)"/>
                     <tab-header title="Bestattung" id="funeral" :active-tab="activeTab"
                                 :is-checked-item="true"
-                                :check-value="myFuneral.text && myFuneral.announcement"/>
+                                :check-value="myFuneral.text && myFuneral.announcement && myFuneral.processed"/>
                     <tab-header title="Angehörige" id="family" :active-tab="activeTab"/>
                     <tab-header title="Trauergespräch" id="interview" :active-tab="activeTab" :is-checked-item="true"
                                 :check-value="myFuneral.appointment"/>
@@ -117,6 +118,7 @@
                                             label="Ort"/>
                             </div>
                         </div>
+                        <dimissorial-form-part :parent="myFuneral" />
                     </tab>
                     <tab id="funeral" :active-tab="activeTab">
                         <fake-table :columns="[2,2,2,3,3]" :headers="['Datum', 'Uhrzeit', 'Ort', 'Pfarrer:in', '']"
@@ -177,6 +179,7 @@
                         <form-textarea label="Bestatter" v-model="myFuneral.undertaker" name="undertaker"/>
                         <form-textarea label="Nachrufe" v-model="myFuneral.eulogies" name="eulogies"/>
                         <form-textarea label="Notizen" v-model="myFuneral.notes" name="notes"/>
+                        <form-check name="processed" label="Kirchenbucheintrag abgeschlossen" v-model="myFuneral.processed" is-checked-item />
                     </tab>
                     <tab id="family" :active-tab="activeTab">
                         <form-input name="relative_name" v-model="myFuneral.relative_name"
@@ -186,15 +189,15 @@
                                 <span class="fa fa-copy"></span> Adresse übernehmen
                             </button>
                         </div>
-                        <form-input v-model="myFuneral.relative_address" name="relative_address"
-                                    label="Adresse" help="Straße und Hausnummer" :key="myFuneral.relative_address"/>
+                        <form-input v-model="myFuneral.relative_address" name="relative_address"  :key="copied"
+                                    label="Adresse" help="Straße und Hausnummer"/>
                         <div class="row">
                             <div class="col-md-3">
-                                <form-input v-model="myFuneral.relative_zip" name="relative_zip"
-                                            label="Postleitzahl" type="number" :key="myFuneral.relative_zip"/>
+                                <form-input v-model="myFuneral.relative_zip" name="relative_zip" :key="copied"
+                                            label="Postleitzahl" type="number"/>
                             </div>
                             <div class="col-md-9">
-                                <form-input v-model="myFuneral.relative_city" :key="myFuneral.relative_city" name="relative_city"
+                                <form-input v-model="myFuneral.relative_city"  name="relative_city" :key="copied"
                                             label="Ort"/>
                             </div>
                         </div>
@@ -292,11 +295,15 @@ import ValueCheck from "../../components/Ui/elements/ValueCheck";
 import Participants from "../../components/Calendar/Service/Participants";
 import FakeAttachment from "../../components/Ui/elements/FakeAttachment";
 import RelativeDate from "../../libraries/RelativeDate";
+import FormCheck from "../../components/Ui/forms/FormCheck";
+import DimissorialFormPart from "../../components/RiteEditors/DimissorialFormPart";
 
 
 export default {
     name: "FuneralEditor",
     components: {
+        DimissorialFormPart,
+        FormCheck,
         FakeAttachment,
         Participants,
         quillEditor,
@@ -338,6 +345,7 @@ export default {
                 showClear: true,
             },
             myFuneral: myFuneral,
+            copied: 0,
             activeTab: 'home',
             textEditorActive: false,
             editorOption: {
@@ -365,6 +373,7 @@ export default {
             this.myFuneral.relative_address = this.myFuneral.buried_address;
             this.myFuneral.relative_zip = this.myFuneral.buried_zip;
             this.myFuneral.relative_city = this.myFuneral.buried_city;
+            this.copied++;
             this.$forceUpdate();
         },
         saveFuneral() {

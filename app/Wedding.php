@@ -30,11 +30,13 @@
 
 namespace App;
 
+use App\Calendars\SyncEngines\AbstractSyncEngine;
 use App\Traits\HasAttachmentsTrait;
 use App\Traits\HasCommentsTrait;
 use AustinHeap\Database\Encryption\Traits\HasEncryptedAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Class Wedding
@@ -68,6 +70,31 @@ class Wedding extends Model
         'signed',
         'docs_ready',
         'docs_where',
+        'spouse1_dob',
+        'spouse1_address',
+        'spouse1_zip',
+        'spouse1_city',
+        'spouse1_needs_dimissorial',
+        'spouse1_dimissorial_issuer',
+        'spouse1_dimissorial_requested',
+        'spouse1_dimissorial_received',
+        'spouse2_dob',
+        'spouse2_address',
+        'spouse2_zip',
+        'spouse2_city',
+        'spouse2_needs_dimissorial',
+        'spouse2_dimissorial_issuer',
+        'spouse2_dimissorial_requested',
+        'spouse2_dimissorial_received',
+        'needs_permission',
+        'permission_requested',
+        'permission_received',
+        'notes',
+        'music',
+        'gift',
+        'flowers',
+        'docs_format',
+        'processed',
     ];
 
     /**
@@ -75,6 +102,14 @@ class Wedding extends Model
      */
     protected $dates = [
         'appointment',
+        'spouse1_dob',
+        'spouse2_dob',
+        'spouse1_dimissorial_requested',
+        'spouse1_dimissorial_received',
+        'spouse2_dimissorial_requested',
+        'spouse2_dimissorial_received',
+        'permission_requested',
+        'permission_received',
     ];
 
     /** @var array $encrypted These fields are en-/decrypted on-the-fly */
@@ -87,9 +122,17 @@ class Wedding extends Model
         'spouse2_birth_name',
         'spouse2_email',
         'spouse2_phone',
+        'spouse1_address',
+        'spouse1_zip',
+        'spouse1_city',
+        'spouse2_address',
+        'spouse2_zip',
+        'spouse2_city',
+        'notes',
     ];
 
     protected $with = ['attachments'];
+    protected $appends = ['spouse1DimissorialUrl', 'spouse2DimissorialUrl'];
 
     /**
      * @return BelongsTo
@@ -98,5 +141,42 @@ class Wedding extends Model
     {
         return $this->belongsTo(Service::class);
     }
+
+    /**
+     * Generate a record for sync'ing to external calendars
+     * @return array[]|null
+     */
+    public function getPreparationEvent()
+    {
+        if (!$this->appointment) return null;
+
+        $key = 'wedding_prep_'.$this->id;
+
+        $description =                 '<p>Trauung am '.$this->service->day->date->format('d.m.Y').' um '.$this->service->timeText().' ('.$this->service->locationText().')</p>'
+            .'<p><a href="'.route('funerals.edit', $this->id).'">Trauung im Pfarrplaner öffnen</a></p>'
+            .'<p>Kontakt:<br />'
+            .trim(' - '.$this->spouse1_name.': '.$this->spouse1_phone.' '.$this->spouse1_email).'<br />'
+            .trim(' - '.$this->spouse2_name.': '.$this->spouse2_phone.' '.$this->spouse2_email)
+            .'</p>'
+            .AbstractSyncEngine::AUTO_WARNING;
+
+        $record = [
+            'startDate' => $this->appointment->copy()->shiftTimezone('Europe/Berlin')->setTimezone('UTC'),
+            'endDate' => $this->appointment->copy()->shiftTimezone('Europe/Berlin')->setTimezone('UTC')->addHour(1),
+            'title' => 'Traugespräch '.$this->spouse1_name.' / '.$this->spouse2_name,
+            'description' => $description,
+            'location' => '',
+        ];
+        return [$key => $record];
+    }
+
+    public function getSpouse1DimissorialUrlAttribute() {
+        return URL::signedRoute('dimissorial.show', ['type' => 'trauung', 'id' => $this->id, 'spouse' => 1]);
+    }
+
+    public function getSpouse2DimissorialUrlAttribute() {
+        return URL::signedRoute('dimissorial.show', ['type' => 'trauung', 'id' => $this->id, 'spouse' => 2]);
+    }
+
 
 }

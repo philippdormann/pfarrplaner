@@ -53,13 +53,14 @@
                     <template slot="positive">
                         <a :href="route('funeral.appointment.ical', funeral)" title="In den Kalender übernehmen">
                             <span class="fa fa-calendar"></span> Trauergespräch am
-                            {{ moment(funeral.appointment).locale('de-DE').format('LLLL') }} Uhr
+                            {{ DateTime.fromISO(funeral.appointment).setZone('Europe/Berlin' , {keepLocalTime: true}).setZone('UTC').setLocale('de').toLocaleString(DateTime.DATETIME_SHORT) }} Uhr
                         </a>
                     </template>
                 </checked-process-item>
+                <dimissorial-check-item :parent="funeral" />
                 <checked-process-item :check="(funeral.text)" negative="Predigttext noch nicht eingetragen">
                     <template slot="positive">
-                        Predigttext: {{ funeral.text }}
+                        <bible-reference title="Predigttext:" :liturgy="{ ref: funeral.text }" liturgy-key="ref" inline="1" />
                     </template>
                 </checked-process-item>
                 <checked-process-item :check="(funeral.announcement)"
@@ -69,13 +70,20 @@
                     </template>
                 </checked-process-item>
             </div>
+            <div>
+                <checked-process-item :check="funeral.processed" positive="Ins Kirchenbuch eingetragen" negative="Noch nicht ins Kirchenbuch eingetragen" />
+            </div>
         </div>
         <div class="col-md-3">
-            <attachment v-for="(attachment,key,index) in funeral.attachments" :key="'attachment_'+key"
-                        :attachment="attachment"/>
-            <fake-attachment :href="route('funeral.form', {funeral: funeral.id})"
-                             title="Formular für Kirchenregisteramt" extension="pdf"
-                             icon="fa-file-pdf" size="ca. 135 kB" />
+            <file-drag-receiver multi
+                                v-model="myFuneral.attachments"
+                                :upload-route="route('funeral.attach', funeral.id)" :key="Object.keys(myFuneral.attachments).length">
+                    <attachment v-for="(attachment,key,index) in funeral.attachments" :key="'attachment_'+key"
+                                :attachment="attachment"/>
+                    <fake-attachment :href="route('funeral.form', {funeral: funeral.id})"
+                                     title="Formular für Kirchenregisteramt" extension="pdf"
+                                     icon="fa-file-pdf" size="ca. 135 kB"/>
+            </file-drag-receiver>
         </div>
         <div class="col-md-1 text-right">
             <a class="btn btn-sm btn-light" title="Bestattung bearbeiten"
@@ -93,17 +101,33 @@ import Attachment from "../../Ui/elements/Attachment";
 import DetailsInfo from "../../Service/DetailsInfo";
 import Participants from "../../Calendar/Service/Participants";
 import FakeAttachment from "../../Ui/elements/FakeAttachment";
+import FileDragReceiver from "../../Ui/elements/FileDragReceiver";
+import AttachmentList from "../../Ui/elements/AttachmentList";
+import BibleReference from "../../LiturgyEditor/Elements/BibleReference";
+import DimissorialCheckItem from "../../RiteEditors/DimissorialCheckItem";
+import { DateTime } from 'luxon';
 
 export default {
     name: "Funeral",
     components: {
+        DimissorialCheckItem,
+        BibleReference,
+        AttachmentList,
+        FileDragReceiver,
         FakeAttachment,
         Participants,
         DetailsInfo,
         Attachment,
         CheckedProcessItem,
+        DateTime,
     },
     props: ['funeral', 'showService', 'showPastor'],
+    data() {
+        return {
+            myFuneral : this.funeral,
+            DateTime: DateTime,
+        }
+    },
     methods: {
         deleteFuneral() {
             this.$inertia.delete(route('funerals.destroy', {funeral: this.funeral.id}), {preserveState: false});

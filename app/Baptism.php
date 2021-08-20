@@ -30,11 +30,13 @@
 
 namespace App;
 
+use App\Calendars\SyncEngines\AbstractSyncEngine;
 use App\Traits\HasAttachmentsTrait;
 use App\Traits\HasCommentsTrait;
 use AustinHeap\Database\Encryption\Traits\HasEncryptedAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Class Baptism
@@ -65,7 +67,14 @@ class Baptism extends Model
         'appointment',
         'docs_ready',
         'docs_where',
-        'city_id'
+        'city_id',
+        'text',
+        'notes',
+        'processed',
+        'needs_dimissorial',
+        'dimissorial_issuer',
+        'dimissorial_requested',
+        'dimissorial_received',
     ];
 
     /**
@@ -74,6 +83,8 @@ class Baptism extends Model
     protected $dates = [
         'first_contact_on',
         'appointment',
+        'dimissorial_requested',
+        'dimissorial_received',
     ];
 
     /** @var array */
@@ -83,11 +94,12 @@ class Baptism extends Model
         'candidate_city',
         'candidate_email',
         'candidate_phone',
+        'text'
     ];
 
     protected $with = ['attachments'];
 
-    protected $appends = ['hasRegistrationForm'];
+    protected $appends = ['hasRegistrationForm', 'dimissorialUrl'];
 
     /**
      * @return BelongsTo
@@ -97,6 +109,9 @@ class Baptism extends Model
         return $this->belongsTo(Service::class);
     }
 
+    /**
+     * @return bool
+     */
     public function getHasRegistrationFormAttribute()
     {
         $found = false;
@@ -104,5 +119,42 @@ class Baptism extends Model
             $found = $found || ($attachment->title == 'Anmeldeformular');
         }
         return $found;
+    }
+
+    /**
+     * Generate a record for sync'ing to external calendars
+     * @return array[]|null
+     */
+    public function getPreparationEvent()
+    {
+        if (!$this->appointment) return null;
+
+        $key = 'baptism_prep_'.$this->id;
+
+        $contacts = [];
+        if ($this->candidate_phone) $contacts[] = $this->candidate_phone;
+        if ($this->candidate_email) $contacts[] = $this->candidate_email;
+
+        $record = [
+            'startDate' => $this->appointment->copy()->shiftTimezone('Europe/Berlin')->setTimezone('UTC'),
+            'endDate' => $this->appointment->copy()->shiftTimezone('Europe/Berlin')->setTimezone('UTC')->addHour(1),
+            'title' => 'Taufgespräch '.$this->candidate_name,
+            'description' =>
+                '<p>Taufe am '.$this->service->day->date->format('d.m.Y').' um '.$this->service->timeText().' ('.$this->service->locationText().')</p>'
+                .'<p><a href="'.route('baptisms.edit', $this->id).'">Taufe im Pfarrplaner öffnen</a></p>'
+                .(count($contacts) ? '<p>Kontakt: '.join(', ', $contacts).'</p>' : '')
+                .AbstractSyncEngine::AUTO_WARNING,
+            'location' => $this->candidate_address.', '.$this->candidate_zip.' '.$this->candidate_city,
+        ];
+        return [$key => $record];
+    }
+
+    /**
+     * Get the signed url for an online dimissorial
+     * @return string
+     */
+    public function getDimissorialUrlAttribute()
+    {
+        return URL::signedRoute('dimissorial.show', ['type' => 'taufe', 'id' => $this->id]);
     }
 }

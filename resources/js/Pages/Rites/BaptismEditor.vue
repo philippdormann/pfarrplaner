@@ -40,8 +40,9 @@
         <card>
             <card-header>
                 <tab-headers>
-                    <tab-header title="Allgemeines" id="home" :active-tab="activeTab"/>
-                    <tab-header title="Vorbereitung" id="prep" :active-tab="activeTab" is-checked-item="1"
+                    <tab-header title="Allgemeines" id="home" :active-tab="activeTab" :is-checked-item="true"
+                                :check-value="(!myBaptism.needs_dimissorial) || (myBaptism.dimissorial_received)"/>
+                    <tab-header title="Vorbereitung" id="prep" :active-tab="activeTab" :is-checked-item="true"
                                 :check-value="prepChecks()"/>
                     <tab-header title="Dateien" id="attachments" :active-tab="activeTab"
                                 :count="myBaptism.attachments.length"/>
@@ -104,6 +105,7 @@
                                 </div>
                             </div>
                         </fieldset>
+                        <dimissorial-form-part :parent="myBaptism" />
                     </tab>
                     <tab id="prep" :active-tab="activeTab">
                         <fieldset id="fsPrep">
@@ -127,6 +129,11 @@
                             </div>
                         </fieldset>
                         <fieldset>
+                            <legend>Wichtige Informationen</legend>
+                            <form-input name="text" label="Taufspruch" v-model="myBaptism.text" is-checked-item="1" />
+                            <form-textarea name="notes" label="Notizen aus dem Taufgespräch" v-model="myBaptism.notes" />
+                        </fieldset>
+                        <fieldset>
                             <legend>Unterlagen</legend>
                             <div v-if="!hasRegistrationForm" class="mb-3">
                                 <p>Wenn das Anmeldeformular in AHAS Online erstellt wurde, kannst du es hier hochladen:</p>
@@ -146,7 +153,7 @@
                                             help="Wo sind die Unterlagen hinterlegt?"
                                             is-checked-item="1"/>
                             </div>
-
+                            <form-check name="processed" label="Kirchenbucheintrag abgeschlossen" v-model="myBaptism.processed" is-checked-item/>
                         </fieldset>
                     </tab>
                     <tab id="attachments" :active-tab="activeTab">
@@ -186,10 +193,14 @@ import FormSelectize from "../../components/Ui/forms/FormSelectize";
 import AttachmentList from "../../components/Ui/elements/AttachmentList";
 import FormFileUploader from "../../components/Ui/forms/FormFileUploader";
 import CheckedProcessItem from "../../components/Ui/elements/CheckedProcessItem";
+import FormTextarea from "../../components/Ui/forms/FormTextarea";
+import DimissorialFormPart from "../../components/RiteEditors/DimissorialFormPart";
 
 export default {
     name: "BaptismEditor",
     components: {
+        DimissorialFormPart,
+        FormTextarea,
         CheckedProcessItem,
         FormFileUploader,
         AttachmentList,
@@ -244,7 +255,9 @@ export default {
                 && (this.myBaptism.registered)
                 && (this.myBaptism.signed)
                 && (this.myBaptism.docs_ready)
-                && (this.myBaptism.docs_where);
+                && (this.myBaptism.docs_where)
+                && (this.myBaptism.text)
+                && (this.myBaptism.processed);
         },
         saveBaptism() {
             this.$inertia.patch(route('baptisms.update', {baptism: this.myBaptism.id}), this.myBaptism);

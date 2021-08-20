@@ -39,6 +39,9 @@
 |
 */
 
+use App\Http\Controllers\CalendarConnectionController;
+use App\Http\Controllers\PublicController;
+use App\Http\Controllers\WeddingController;
 use Inertia\Inertia;
 
 Route::resource('cities', 'CityController')->middleware('auth');
@@ -60,7 +63,7 @@ Route::resource('roles', 'RoleController')->middleware('auth');
 Route::resource('comments', 'CommentController')->middleware('auth');
 
 Route::patch('/services/{service}', 'ServiceController@update2')->name('services.update');
-Route::resource('services', 'ServiceController')->middleware('auth');
+Route::resource('services', 'ServiceController')->except(['edit'])->middleware('auth');
 Route::get('services/{service}/edit/{tab?}', ['as' => 'services.edit', 'uses' => 'ServiceController@edit']);
 Route::get('services/{service}/ical', ['as' => 'services.ical', 'uses' => 'ServiceController@ical']);
 Route::get('/service/{service}/songsheet', 'ServiceController@songsheet')->name('service.songsheet');
@@ -69,7 +72,7 @@ Route::get('services/{service}', 'ServiceController@editor')->name('services.edi
 Route::post('services/{service}/attachment', 'ServiceController@attach')->name('service.attach');
 Route::delete('services/{service}/attachment/{attachment}', 'ServiceController@detach')->name('service.detach');
 
-Route::resource('absences', 'AbsenceController')->middleware('auth');
+Route::resource('absences', 'AbsenceController')->except(['index', 'create'])->middleware('auth');
 Route::get('planner/users', 'AbsenceController@users')->name('planner.users');
 Route::get('planner/days/{date}/{user}', 'AbsenceController@days')->name('planner.days');
 Route::get('absences/{year?}/{month?}', ['as' => 'absences.index', 'uses' => 'AbsenceController@index']);
@@ -92,7 +95,7 @@ Route::get('qr/{city}', 'CityController@qr')->name('qr');
 
 
 Route::resource('calendarConnection', 'CalendarConnectionController');
-Route::post('calendarConnection/configure', 'CalendarConnectionController@configure')->name('calendarConnection.configure');
+Route::post('exchangeCalendars', [CalendarConnectionController::class, 'exchangeCalendars'])->name('calendarConnection.exchangeCalendars');
 
 // embed in web site:
 Route::get(
@@ -132,8 +135,7 @@ Route::post('/reports/render/{report}', ['as' => 'reports.render', 'uses' => 'Re
 Route::get('/reports/render/{report}', ['as' => 'reports.render.get', 'uses' => 'ReportsController@render']);
 Route::get('/report/{report}', ['as' => 'reports.setup', 'uses' => 'ReportsController@setup']);
 Route::get('/report/{report}/embed', ['as' => 'report.embed', 'uses' => 'ReportsController@embed'])->middleware('cors');
-Route::post('/report/{report}/{step}', ['as' => 'report.step', 'uses' => 'ReportsController@step']);
-Route::get('/report/{report}/{step}', ['as' => 'report.step', 'uses' => 'ReportsController@step']);
+Route::match(['GET', 'POST'], '/report/{report}/{step}', ['as' => 'report.step', 'uses' => 'ReportsController@step']);
 
 Route::get('/input/{input}', ['as' => 'inputs.setup', 'uses' => 'InputController@setup']);
 Route::post('/input/collect/{input}', ['as' => 'inputs.input', 'uses' => 'InputController@input']);
@@ -180,6 +182,8 @@ Route::get('/wedding/wizard', ['as' => 'weddings.wizard', 'uses' => 'WeddingCont
 Route::post('/wedding/wizard/step2', ['as' => 'weddings.wizard.step2', 'uses' => 'WeddingController@wizardStep2']);
 Route::post('/wedding/wizard/step3', ['as' => 'weddings.wizard.step3', 'uses' => 'WeddingController@wizardStep3']);
 Route::post('/wedding/done/{wedding}', ['as' => 'wedding.done', 'uses' => 'WeddingController@done']);
+Route::post('weddings/{wedding}/attachment', [WeddingController::class, 'attach'])->name('wedding.attach');
+Route::delete('weddings/{wedding}/attachment/{attachment}', [WeddingController::class, 'detach'])->name('wedding.detach');
 
 
 Route::resource('weddings', 'WeddingController')->middleware('auth');
@@ -189,12 +193,12 @@ Route::get('/wedding/destroy/{wedding}', ['as' => 'wedding.destroy', 'uses' => '
 // Home routes
 Route::get(    '/', ['as' => 'root', 'uses' => 'HomeController@root']);
 Route::get('/home/{activeTab?}', ['as' => 'home', 'uses' => 'HomeController@index']);
-Route::get('/tabs/{tab}', ['as' => 'tab', 'uses' => 'HomeController@tab']);
+Route::get('/tabs/{tabIndex}', ['as' => 'tab', 'uses' => 'HomeController@tab']);
 
 Route::get('/password/change', 'HomeController@showChangePassword')->name('password.edit');
 Route::post('/password/change', 'HomeController@changePassword')->name('password.change');
 
-Auth::routes();
+Auth::routes(['logout' => false, 'register' => false]);
 Route::get('/logout', 'UserController@logout')->name('logout');
 
 Route::get('/ical/private/{name}/{token}', ['uses' => 'ICalController@private'])->name('ical.private');
@@ -204,8 +208,7 @@ Route::get('/ical/urlaub/{user}/{token}', ['uses' => 'ICalController@absences'])
 
 Route::get('/ical/connect', ['uses' => 'ICalController@connect'])->name('ical.connect');
 Route::get('/ical/setup/{key}', ['uses' => 'ICalController@setup'])->name('ical.setup');
-Route::get('/ical/link/{key}', ['uses' => 'ICalController@link'])->name('ical.link');
-Route::post('/ical/link/{key}', ['uses' => 'ICalController@link'])->name('ical.link');
+Route::match(['GET', 'POST'], '/ical/link/{key}', ['uses' => 'ICalController@link'])->name('ical.link');
 Route::get('/ical/export/{user}/{token}/{key}', ['uses' => 'ICalController@export'])->name('ical.export');
 
 
@@ -215,10 +218,7 @@ Route::get('/whatsnew', ['as' => 'whatsnew', 'uses' => 'HomeController@whatsnew'
 Route::get('/kinderkirche/{city}/pdf', ['as' => 'cc-public-pdf', 'uses' => 'PublicController@childrensChurch']);
 Route::get('/kinderkirche/{city}', ['as' => 'cc-public', 'uses' => 'PublicController@childrensChurch']);
 
-Route::post('/showLimitedColumns/{switch}', 'CalendarController@showLimitedColumns')
-    ->middleware('auth')
-    ->name('showLimitedColumns');
-Route::get('/showLimitedColumns/{switch}', 'CalendarController@showLimitedColumns')
+Route::match(['GET', 'POST'],'/showLimitedColumns/{switch}', 'CalendarController@showLimitedColumns')
     ->middleware('auth')
     ->name('showLimitedColumns');
 
@@ -327,6 +327,7 @@ Route::get('/anfrage/{ministry}/{user}/{services}/{sender?}', 'PublicController@
     ->name('ministry.request');
 Route::post('/anfrage/{ministry}/{user}/{sender?}', 'PublicController@ministryRequestFilled')
     ->name('ministry.request.fill');
+Route::get('/dienste/{cityName}/{ministry}', [PublicController::class, 'ministryPlan'])->name('ministry.plan');
 
 // settings
 Route::post('/setting/{user}/{key}', 'SettingsController@set')->name('setting.set');
@@ -360,3 +361,7 @@ Route::get('/bible/text/{reference}/{version?}', 'BibleController@text')->name('
 
 // csrf token: keep alive
 Route::get('/csrf-token', 'Auth\\LoginController@keepTokenAlive')->name('csrf.keepalive');
+
+// dimissorial
+Route::get('/dimissoriale/{type}/{id}', [PublicController::class, 'showDimissorial'])->name('dimissorial.show');
+Route::post('/dimissoriale/{type}/{id}', [PublicController::class, 'grantDimissorial'])->name('dimissorial.grant');
