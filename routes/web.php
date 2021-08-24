@@ -39,7 +39,9 @@
 |
 */
 
+use App\Http\Controllers\BibleController;
 use App\Http\Controllers\CalendarConnectionController;
+use App\Http\Controllers\SermonController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\WeddingController;
 use Inertia\Inertia;
@@ -333,11 +335,13 @@ Route::get('/dienste/{cityName}/{ministry}', [PublicController::class, 'ministry
 Route::post('/setting/{user}/{key}', 'SettingsController@set')->name('setting.set');
 
 // sermons
-Route::get('/services/{service}/sermon', 'SermonController@editorByService')->name('services.sermon.editor');
-Route::post('/services/{service}/sermon', 'SermonController@store')->name('services.sermon.store');
-Route::delete('/services/{service}/sermon', 'SermonController@uncouple')->name('services.sermon.uncouple');
-Route::get('/sermons/{sermon}', 'SermonController@editor')->name('sermon.editor');
-Route::patch('/sermons/{sermon}', 'SermonController@update')->name('sermon.update');
+Route::get('/services/{service}/sermon', [SermonController::class, 'editorByService'])->name('services.sermon.editor');
+Route::post('/services/{service}/sermon', [SermonController::class, 'store'])->name('services.sermon.store');
+Route::delete('/services/{service}/sermon', [SermonController::class, 'uncouple'])->name('services.sermon.uncouple');
+Route::get('/sermons/{sermon}', [SermonController::class, 'editor'])->name('sermon.editor');
+Route::patch('/sermons/{sermon}', [SermonController::class, 'update'])->name('sermon.update');
+Route::post('/sermons/{model}/image', [SermonController::class, 'attachImage'])->name('sermon.image.attach');
+Route::delete('/sermons/{model}/image', [SermonController::class, 'detachImage'])->name('sermon.image.detach');
 
 // patch
 Route::get('/patch/{patch}', 'PatchController@patch');
@@ -357,7 +361,7 @@ Route::post('/streaming/{city}/activateBroadcast/{broadcast}', 'StreamingTrouble
 Route::get('/manual/{routeName}', 'ManualController@page')->name('manual');
 
 // bible texts
-Route::get('/bible/text/{reference}/{version?}', 'BibleController@text')->name('bible.text');
+Route::get('/bible/text/{reference}/{version?}', [BibleController::class, 'text'])->name('bible.text');
 
 // csrf token: keep alive
 Route::get('/csrf-token', 'Auth\\LoginController@keepTokenAlive')->name('csrf.keepalive');

@@ -110,7 +110,23 @@
                             <quill-editor :class="{focused: textEditorActive}" ref="textEditor"
                                           v-model="editedSermon.text"
                                           :options="editorOption" @focus="textEditorActive = true"
-                                          @blur="textEditorActive = false"/>
+                                          @blur="textEditorActive = false">
+                                <div id="toolbar" slot="toolbar">
+                                    <button class="ql-bold"></button>
+                                    <button class="ql-italic"></button>
+                                    <button class="ql-underline mr-2"></button>
+                                    <button class="ql-header" value="1"></button>
+                                    <button class="ql-blockquote mr-2"></button>
+                                    <span class="ql-formats mr-2">
+                                                    <button class="ql-list" value="ordered"></button>
+                                                    <button class="ql-list" value="bullet"></button>
+                                                    <button class="ql-indent" value="-1"></button>
+                                                    <button class="ql-indent" value="+1"></button>
+                                                </span>
+                                    <button class="ql-clean mr-2"></button>
+                                    <button class="ql-insertbible quill-fa-button" title="Bibeltext hinzufügen"><span class="fa fa-bible"></span></button>
+                                </div>
+                            </quill-editor>
 
                             <div v-if="editedSermon.text.length > 0">
                                 <small class="form-text text-muted">{{
@@ -153,17 +169,16 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Bild zur Predigt</label><br/>
-                                    <img v-if="editedSermon.image" class="img-fluid"
-                                         :src="uploadedImage(editedSermon.image)" style="margin-bottom: 10px;"/>
-                                    <input class="form-control-file" type="file" @change="setImage"/>
+                                <div v-if="!(editedSermon.id)" class="alert alert-info">
+                                    Du musst die Predigt erst einmal speichern, um ein Bild hinzufügen zu können.
                                 </div>
-                                <div class="form-check" v-if="editedSermon.image">
-                                    <input class="form-check-input" type="checkbox" value="" id="inputRemoveImage"
-                                           v-model="removeImage" value="1"/>
-                                    <label class="form-check-label" for="inputRemoveImage">Bestehendes Bild
-                                        entfernen</label>
+                                <div v-else>
+                                <form-image-attacher
+                                    :attach-route="route('sermon.image.attach', {model: editedSermon.id})"
+                                    :detach-route="route('sermon.image.detach', {model: editedSermon.id})"
+                                    label="Bild zur Predigt" :handle-paste="true"
+                                    v-model="editedSermon.image"
+                                />
                                 </div>
                             </div>
                         </div>
@@ -188,10 +203,14 @@ import 'quill/dist/quill.bubble.css'
 import '../components/SermonEditor/quill.css';
 
 import {quillEditor} from 'vue-quill-editor';
+import FormFileUploader from "../components/Ui/forms/FormFileUploader";
+import FormImageAttacher from "../components/Ui/forms/FormImageAttacher";
 
 export default {
     name: "sermonEditor",
     components: {
+        FormImageAttacher,
+        FormFileUploader,
         quillEditor,
     },
     props: {
@@ -231,15 +250,13 @@ export default {
             editorOption: {
                 placeholder: 'Schreibe hier den Text deiner Predigt hin...',
                 modules: {
-                    toolbar: [
-                        ['bold', 'italic', 'underline'],        // toggled buttons
-                        ['blockquote'],
-
-                        [{'header': 1}],               // custom button values
-                        [{'list': 'ordered'}, {'list': 'bullet'}],
-
-                        ['clean']                                         // remove formatting button
-                    ],
+                    toolbar: {
+                        container: '#toolbar',
+                        handlers: {
+                            custom: this.quillInsertText,
+                            insertbible: this.quillInsertBible,
+                        }
+                    },
                     clipboard: {
                         matchVisual: false,
                     },
@@ -320,10 +337,34 @@ export default {
         },
         setImage(event) {
             this.fileUpload = event.target.files[0];
+        },
+        quillInsertText(e) {
+            var quill = this.$refs.textEditor.quill;
+            var text = null;
+
+            switch (e) {
+                default:
+                    text = e;
+            }
+
+            if (text) quill.insertText(quill.getSelection(true).index, text);
+        },
+        quillInsertBible() {
+            var reference = window.prompt('Welche Bibelstelle möchtest du einfügen?');
+            axios.get(route('bible.text', {reference: reference, showReference: 1, showVerseNumbers: 0}) ).then(result => {
+                if (result.data.text) {
+                    this.quillInsertText(result.data.text);
+                } else {
+                    alert('Zu dieser Stellenangabe konnte kein Text gefunden werden.');
+                }
+            });
         }
     }
 }
 </script>
 
 <style scoped>
+.ql-toolbar .quill-fa-button {
+    padding-top: 1px;
+}
 </style>
