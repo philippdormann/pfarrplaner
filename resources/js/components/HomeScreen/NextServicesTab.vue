@@ -50,15 +50,15 @@
                         <span class="fa fa-calendar"></span>
                     </inertia-link>
                     <inertia-link class="btn btn-primary" title="Gottesdienst bearbeiten"
-                                  :href="route('services.edit', service.id)">
+                                  :href="route('service.edit', service.slug)">
                         <span class="fa fa-edit"></span>
                     </inertia-link>
                     <inertia-link class="btn btn-light" title="Liturgie bearbeiten"
-                                  :href="route('services.liturgy.editor', service.id)">
+                                  :href="route('liturgy.editor', service.slug)">
                         <span class="fa fa-th-list"></span>
                     </inertia-link>
                     <inertia-link class="btn btn-light" title="Predigt bearbeiten"
-                                  :href="route('services.sermon.editor', service.id)">
+                                  :href="route('service.sermon.editor', service.slug)">
                         <span class="fa fa-microphone"></span>
                     </inertia-link>
                 </div>

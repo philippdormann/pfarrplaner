@@ -2,6 +2,108 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.78.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.77.1...v1.78.0) (2021-08-27)
+
+
+### Features
+
+* Add more options for case-related HomeScreenTabs (reverse sorting, exclusion of processed items) ([1ea51aa](https://github.com/pfarrplaner/pfarrplaner/commits/1ea51aa573e69300a6f2d64360041c0c1b3e2d43))
+
+### [1.77.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.77.0...v1.77.1) (2021-08-26)
+
+
+### Features
+
+* enable inertia linking for submenu items ([b141130](https://github.com/pfarrplaner/pfarrplaner/commits/b1411300cf3df711780f4736bd356a7acd27a580))
+
+## [1.77.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.76.2...v1.77.0) (2021-08-26)
+
+
+### Features
+
+* Add default service type for KonfiApp ([3f68423](https://github.com/pfarrplaner/pfarrplaner/commits/3f68423b9a90ebb7364c7f3bd3268129fd1cfeb7))
+* Allow downloading existing file from FormImageAttacher ([1520ba2](https://github.com/pfarrplaner/pfarrplaner/commits/1520ba291340c6a99b9d0b957518f6c3e8a1569f))
+* Allow free-text entries for responsible persons in LiturgyEditor ([e0ba041](https://github.com/pfarrplaner/pfarrplaner/commits/e0ba041ee49791f48e1edbac3afa104c979408aa))
+* Automatically set labelField as searchField in FormSelectize ([b072b9c](https://github.com/pfarrplaner/pfarrplaner/commits/b072b9c74af1a923d93beaae8d93a3046133c0c3))
+* HandlesAttachedImageTrait now handles multiple image fields per model ([b70fa56](https://github.com/pfarrplaner/pfarrplaner/commits/b70fa56df196b4d893fa5cae1372bbdb9a9cea84))
+
+
+### Bug Fixes
+
+* Typo in trait name for HandlesAttachedImageTrait ([2bd59f1](https://github.com/pfarrplaner/pfarrplaner/commits/2bd59f1e884e9cd28cb12d6bba1347e3a1de92ee))
+* user.profile route not working ([e8ae1f0](https://github.com/pfarrplaner/pfarrplaner/commits/e8ae1f02c12478c4696bb687a158c29d19134000))
+
+### [1.76.2](https://github.com/pfarrplaner/pfarrplaner/compare/v1.76.1...v1.76.2) (2021-08-26)
+
+
+### Bug Fixes
+
+* Dependencies need updating for PHP 8.x ([790779e](https://github.com/pfarrplaner/pfarrplaner/commits/790779ef5a2d827d8bce64589d01412d5d4f6595))
+* wrong routes to LiturgyEditor ([dae8ee6](https://github.com/pfarrplaner/pfarrplaner/commits/dae8ee60b8472cc0f20e71e544eb07ca36498071))
+
+### [1.76.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.76.0...v1.76.1) (2021-08-26)
+
+
+### Bug Fixes
+
+* Cannot login because of empty CSRF token ([92c4d61](https://github.com/pfarrplaner/pfarrplaner/commits/92c4d61d0e4c85d945965fe55ab5c75270573944))
+
+## [1.76.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.75.0...v1.76.0) (2021-08-25)
+
+
+### Features
+
+* Allow overloading auto-created announcement file ([cba6c5c](https://github.com/pfarrplaner/pfarrplaner/commits/cba6c5c352a690bd17572b6c95d6bec940949df8))
+* Show warnings when auto-created announcements are overwritten ([de3c18a](https://github.com/pfarrplaner/pfarrplaner/commits/de3c18a413a609c3cfa2d3c5588c753ed5162e52))
+
+## [1.75.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.74.1...v1.75.0) (2021-08-25)
+
+
+### Features
+
+* Add configuration options for PPT export ([a078406](https://github.com/pfarrplaner/pfarrplaner/commits/a0784067b484cca6ee0f8364ca6420dcc9530c99))
+* Specify more finely-grained permissions in case of "fremden-urlaub-bearbeiten" ([8a99e3b](https://github.com/pfarrplaner/pfarrplaner/commits/8a99e3bd03699d7155b094de68daab84bcc0773e)), closes [#134](https://github.com/pfarrplaner/pfarrplaner/issues/134)
+
+
+### Bug Fixes
+
+* Logout sometimes doesn't close session ([ac47000](https://github.com/pfarrplaner/pfarrplaner/commits/ac47000894493d4a70183a4c07e044505d2be930))
+* Session not flushed on logout ([46811c1](https://github.com/pfarrplaner/pfarrplaner/commits/46811c15989714a59f36c5d16ca7f632d3a3f060))
+* wrong route ([5301e5f](https://github.com/pfarrplaner/pfarrplaner/commits/5301e5f7017414545946e0d6c87cdf27097342f8))
+
+### [1.74.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.74.0...v1.74.1) (2021-08-25)
+
+
+### Features
+
+* Include Laravel/PHP version info in about page ([1dd54af](https://github.com/pfarrplaner/pfarrplaner/commits/1dd54af3117097f172a48239c71d5552c303bc8d))
+
+
+### Bug Fixes
+
+* Wrong redirection after login / auth routes ([94e4523](https://github.com/pfarrplaner/pfarrplaner/commits/94e4523343c6135bbe75883dd6653e221fbc653b))
+
+## [1.74.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.73.0...v1.74.0) (2021-08-25)
+
+
+### Features
+
+* Add copyright to songsheet, full text output ([1f5b733](https://github.com/pfarrplaner/pfarrplaner/commits/1f5b733952f320944c41d831dbafda8d0f379f43)), closes [#100](https://github.com/pfarrplaner/pfarrplaner/issues/100)
+* Include song copyrights in PPT ([6fd46a3](https://github.com/pfarrplaner/pfarrplaner/commits/6fd46a368b5fcff2c828d38cc8489ba4b9abc1d7)), closes [#100](https://github.com/pfarrplaner/pfarrplaner/issues/100)
+* Rewrote youtube:unpublish command to only touch broadcasts connected to a known service ([805588b](https://github.com/pfarrplaner/pfarrplaner/commits/805588b38178a4208cdbab3fc9a59f5fb4382495))
+
+
+### Bug Fixes
+
+* Absences link should be called with inertia ([3240650](https://github.com/pfarrplaner/pfarrplaner/commits/3240650e96283a282320ccb467ee9c51f9feb83f))
+* FullTextLiturgySheet fails when song data is not present ([6e46866](https://github.com/pfarrplaner/pfarrplaner/commits/6e46866bc8f6b9befd445b283f60e03aef725c0f))
+* prevent duplicate key error message in CasesTab ([513498e](https://github.com/pfarrplaner/pfarrplaner/commits/513498e3dfe43b50e613fce3af10fe57ff2a9f84))
+* Relative date in funeral liturgy is relative to current day, not funeral day ([78f499e](https://github.com/pfarrplaner/pfarrplaner/commits/78f499e86803a38d2ba6b2027416eb5fa18c68eb)), closes [#128](https://github.com/pfarrplaner/pfarrplaner/issues/128)
+* Remove reference to obsolete whatsnew component ([299cd50](https://github.com/pfarrplaner/pfarrplaner/commits/299cd50c0432241a7809bc093df4ac61290b807f))
+* scopeWritable does not correctly suppy city ids ([c54b074](https://github.com/pfarrplaner/pfarrplaner/commits/c54b074645a20a8f8ddacbac6f591f648106d1f4))
+* uncoupling a sermon leads to error 404 ([db1f3f7](https://github.com/pfarrplaner/pfarrplaner/commits/db1f3f7abe929f9d1f933d796ca36ca2704316ac))
+* UserController crashes on edit action ([17e6c87](https://github.com/pfarrplaner/pfarrplaner/commits/17e6c874f3008cc900f0e4d3fa70568264f7d87b))
+
 ## [1.73.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.72.3...v1.73.0) (2021-08-24)
 
 

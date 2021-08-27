@@ -39,44 +39,14 @@
 |
 */
 
-/**
- * Route::middleware('auth:api')->get('/user', function (Request $request) {
- * return $request->user();
- * });
- */
-
-
 Route::namespace('Api')->group(
     function () {
 
         Route::name('api.')->group(
             function() {
-                Route::resource('cities', 'CityController');
-
-            }
-        );
-
-        Route::get(
-            'calendar/month/{year}/{month}',
-            ['as' => 'api.calendar.month', 'uses' => 'CalendarController@month']
-        );
-        Route::get(
-            'servicesByDayAndCity/{day}/{city}',
-            ['as' => 'services.byDayAndCity', 'uses' => 'ServiceController@byDayAndCity']
-        );
-        Route::get('user/{user}/services', ['as' => 'api.user.services', 'uses' => 'ServiceController@byUser']);
-        Route::get('city/{city}/konfiapp-types', 'CityController@konfiAppTypes');
-
-        Route::delete('booking/{booking}', 'BookingController@destroy')->name('api.booking.destroy');
-
-        Route::middleware('auth:api')->group(
-            function () {
-                // Services
-                Route::get('service/{service}', 'ServiceController@show')->name('api.service.show');
-                //Route::patch('service/{service}', 'ServiceController@update')->name('api.service.update')->middleware('auth');
-                Route::patch('service/{service}', 'ServiceController@update')->name('api.service.update')->middleware(
-                    'auth:api'
-                );
+                foreach(glob(base_path('routes/api/*.php')) as $file) {
+                    Route::group([], $file);
+                }
             }
         );
     }

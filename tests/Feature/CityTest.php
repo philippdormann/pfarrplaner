@@ -82,7 +82,7 @@ class CityTest extends TestCase
      */
     public function testCityEditWorks() {
         $city = factory(City::class)->create();
-        $response = $this->actingAs($this->user)->get(route('cities.edit', $city->id));
+        $response = $this->actingAs($this->user)->get(route('city.edit', $city->name));
         $response->assertStatus(200)
             ->assertViewIs('cities.edit');
 
@@ -154,7 +154,7 @@ class CityTest extends TestCase
         $this->assertTrue($city->update(['name' => 'New York']));
 
         $response = $this->patch(
-            route('cities.update', $city->id),
+            route('city.update', $city->name),
             [
                 'name' => 'Hamburg',
             ]
@@ -172,7 +172,7 @@ class CityTest extends TestCase
     public function testCityCanBeDeleted()
     {
         $city = factory(City::class)->create();
-        $response = $this->delete(route('cities.destroy', $city->id));
+        $response = $this->delete(route('city.destroy', $city->name));
         $response->assertStatus(302);
         $this->assertCount(0, City::all());
     }

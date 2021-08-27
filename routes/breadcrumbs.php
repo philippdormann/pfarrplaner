@@ -351,11 +351,11 @@ Breadcrumbs::for(
 );
 
 Breadcrumbs::for(
-    'cities.edit',
+    'city.edit',
     function (BreadcrumbsGenerator $trail, $city) {
         if (is_numeric($city)) $city = \App\City::find($city);
         $trail->parent('cities.index');
-        $trail->push($city->name, route('cities.edit', $city));
+        $trail->push($city->name, route('city.edit', $city));
     }
 );
 
@@ -537,7 +537,7 @@ Breadcrumbs::for(
             $service = $service->id;
         }
         $trail->parent('calendar');
-        $trail->push('#' . $service, route('services.edit', $service));
+        $trail->push('#' . $service, route('service.edit', $service));
     }
 );
 
@@ -597,13 +597,13 @@ Breadcrumbs::for(
 );
 
 Breadcrumbs::for(
-    'users.edit',
+    'user.edit',
     function (BreadcrumbsGenerator $trail, $user) {
         if (is_numeric($user)) {
             $user = \App\User::find($user);
         }
         $trail->parent('users.index');
-        $trail->push($user->fullName(), route('users.edit', $user));
+        $trail->push($user->fullName(), route('user.edit', $user));
     }
 );
 
@@ -612,7 +612,7 @@ Breadcrumbs::for(
     function (BreadcrumbsGenerator $trail, $user) {
         $trail->parent('home');
         $trail->push('Benutzer', route('users.index'));
-        $trail->push($user->fullName(), route('users.edit', $user));
+        $trail->push($user->fullName(), route('user.edit', $user));
         $trail->push('Zusammenführen', route('user.join', $user));
     }
 );
@@ -629,7 +629,7 @@ Breadcrumbs::for(
 Breadcrumbs::for(
     'user.services',
     function (BreadcrumbsGenerator $trail, $user) {
-        $trail->parent('users.edit', $user);
+        $trail->parent('user.edit', $user);
         $trail->push('Gottesdienste', route('user.services', $user));
     }
 );
@@ -684,7 +684,7 @@ Breadcrumbs::for(
             $service = $service->id;
         }
         $trail->parent('calendar');
-        $trail->push('#' . $service, route('services.edit', $service));
+        $trail->push('#' . $service, route('service.edit', $service));
         $trail->push('Liturgie', route('liturgyBlocks.index', $service));
     }
 );

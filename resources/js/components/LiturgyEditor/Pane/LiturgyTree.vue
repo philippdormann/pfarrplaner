@@ -109,7 +109,7 @@
                                     <div v-if="service.sermon === null">
                                         <form-selectize v-if="sermons.length > 0" :options="sermons" id-key="id" title-key="title"
                                         label="Bestehende Predigt auswählen" :settings="sermonSelectizeSettings" @input="setSermon($event, item)"/>
-                                        <inertia-link :href="route('services.sermon.editor', {service: service.id})"
+                                        <inertia-link :href="route('service.sermon.editor', {service: service.slug})"
                                                       @click.stop=""
                                                       class="btn btn-success"
                                                       title="Hier klicken, um die Predigt jetzt anzulegen">
@@ -214,8 +214,9 @@ import PeoplePane from "./PeoplePane";
 import Selectize from "vue2-selectize";
 import Modal from "../../Ui/modals/Modal";
 import LiturgySheetLink from "../Elements/LiturgySheetLink";
-import FullTextLiturgySheetConfiguration from "../LiturgySheets/FullTextLiturgySheetConfiguration";
 import FormSelectize from "../../Ui/forms/FormSelectize";
+import FullTextLiturgySheetConfiguration from "../LiturgySheets/FullTextLiturgySheetConfiguration";
+import SongPPTLiturgySheetConfiguration from "../LiturgySheets/SongPPTLiturgySheetConfiguration";
 
 export default {
     name: "LiturgyTree",
@@ -229,6 +230,7 @@ export default {
         draggable,
         Selectize,
         FullTextLiturgySheetConfiguration,
+        SongPPTLiturgySheetConfiguration,
     },
     props: {
         service: Object,
@@ -259,7 +261,7 @@ export default {
      * @returns {Promise<void>}
      */
     async created() {
-        const sources = await axios.get(route('services.liturgy.sources', this.service.id))
+        const sources = await axios.get(route('liturgy.sources', this.service.slug))
         if (sources.data) {
             this.agendas = sources.data.agendas;
             this.services = sources.data.services;
@@ -267,7 +269,7 @@ export default {
             this.importFrom = -1;
         }
 
-        this.sermons = (await axios.get(route('services.liturgy.sermons', this.service.id))).data;
+        this.sermons = (await axios.get(route('liturgy.sermons', this.service.slug))).data;
     },
     mounted() {
         if (this.autoFocusItem && this.autoFocusBlock) {
@@ -372,7 +374,7 @@ export default {
                     item.sortable = j++;
                 })
             })
-            this.$inertia.post(route('services.liturgy.save', this.service.id), this.blocks)
+            this.$inertia.post(route('liturgy.save', this.service.slug), this.blocks)
         },
         addItem(blockIndex, type) {
             if (!this.editable) return false;
@@ -522,7 +524,7 @@ export default {
             this.$emit('update-focus', this.focusedBlock, this.focusedItem, object);
         },
         save() {
-            this.$inertia.post(route('services.liturgy.save', {service: this.service}), {blocks: this.blocks}, {preserveState: true});
+            this.$inertia.post(route('liturgy.save', {service: this.service}), {blocks: this.blocks}, {preserveState: true});
         },
         editResponsibles(blockIndex, itemIndex, item) {
             this.editable = false;
@@ -535,10 +537,10 @@ export default {
             var tmp = record.split(':');
             if (tmp[0] == 'user') {
                 this.service.participants.forEach(function (person) {
-                    if (person.id == tmp[1]) title = '<span class="fa fa-user"></span> ' + person.name;
+                    if (person.id == tmp[1]) title = '<span class="fa fa-user-check"></span> ' + person.name;
                 });
                 return title;
-            } else {
+            } else if (tmp[0] == 'ministry') {
                 switch (tmp[1]) {
                     case 'pastors':
                         return '<span class="fa fa-users"></span> Pfarrer*in';
@@ -547,12 +549,14 @@ export default {
                     case 'sacristans':
                         return '<span class="fa fa-users"></span> Mesner*in';
                 }
-                return "<span class=\"fa fa-users\"></span> " + tmp[1] + "";
+                return "<span class=\"fa fa-users\"></span> " + tmp[1];
+            } else {
+                return '<span class="fa fa-user-times"></span> '+tmp[1];
             }
         },
         importElements() {
             if (this.importFrom == -1) return;
-            this.$inertia.post(route('services.liturgy.import', {service: this.service, source: this.importFrom}), {}, {
+            this.$inertia.post(route('liturgy.import', {service: this.service, source: this.importFrom}), {}, {
                 preserveState: false,
             })
         },
@@ -607,7 +611,7 @@ export default {
         },
         setSermon(e, item) {
             this.service.sermon_id = e;
-            axios.patch(route('services.update', this.service.id), {sermon_id: e ?? null});
+            axios.patch(route('service.update', this.service.slug), {sermon_id: e ?? null});
             if (e) {
                 this.sermons.forEach(sermon => {
                     if (sermon.id == e) this.service.sermon = sermon;

@@ -75,53 +75,6 @@ class ServiceController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param ServiceRequest $request
-     * @return Response
-     */
-    public function store(ServiceRequest $request)
-    {
-        $validatedData = $request->validated();
-        $service = new Service($validatedData);
-
-        // emit event so that integrations may react
-        event(new ServiceBeforeStore($service, $validatedData));
-
-        $service->setDefaultOfferingValues();
-        $service->save();
-        $this->updateFromRequest($request, $service);
-        $this->handleAttachments($request, $service);
-        $this->handleIndividualAttachment($request, $service, 'songsheet');
-        $this->handleIndividualAttachment($request, $service, 'sermon_image');
-
-        // emit event so that integrations may react
-        event(new ServiceCreated($service));
-
-        return redirect()->route('calendar', $service->day->date->format('Y-m'))
-            ->with('success', 'Der Gottesdienst wurde hinzugefügt');
-    }
-
-    /**
      * @param ServiceRequest $request
      * @param Service $service
      */
@@ -132,34 +85,6 @@ class ServiceController extends Controller
 
         $service->tags()->sync($request->get('tags') ?: []);
         $service->serviceGroups()->sync(ServiceGroup::createIfMissing($request->get('serviceGroups') ?: []));
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param Service $service
-     * @return Response
-     */
-    public function show(Service $service)
-    {
-        return redirect()->route('services.edit', $service);
-    }
-
-
-    public function update2(ServiceRequest $request, Service $service)
-    {
-        $data = $request->validated();
-        return redirect()->back();
-    }
-
-    /**
-     * Show the (new-style) editing form for the service
-     * @param Request $request
-     * @param Service $service
-     * @return \Inertia\Response
-     */
-    public function editor(Request $request, Service $service)
-    {
     }
 
     /**
@@ -252,6 +177,7 @@ class ServiceController extends Controller
         event(new ServiceBeforeUpdate($service, $validatedData));
 
         $service->fill($validatedData);
+        $service->slug = $service->createSlug();
         $service->setDefaultOfferingValues();
         $this->updateFromRequest($request, $service);
         $service->save();
@@ -283,7 +209,7 @@ class ServiceController extends Controller
                 return RedirectorService::back();
             }
         } else {
-            return redirect()->route('services.edit', $service->id);
+            return redirect()->route('service.edit', $service->slug);
         }
     }
 
@@ -313,32 +239,18 @@ class ServiceController extends Controller
     public function add($date, City $city)
     {
         $day = Day::find($date);
-        $service = Service::create(
-            [
-                'city_id' => $city->id,
-                'day_id' => $day->id,
-                'location_id' => $city->locations->first()->id,
-            ]
-        );
-        return redirect()->route('services.edit', $service);
-    }
 
-    /**
-     * @param $cityId
-     * @param $dayId
-     * @return Application|Factory|\Illuminate\View\View
-     */
-    public function servicesByCityAndDay($cityId, $dayId)
-    {
-        $day = Day::find($dayId);
-        $city = City::find($cityId);
-        $vacations = [$dayId => Vacations::getByDay($day)];
-        $services = Service::with('day', 'location')
-            ->where('city_id', $cityId)
-            ->where('day_id', '=', $dayId)
-            ->orderBy('time')
-            ->get();
-        return view('services.ajax.byCityAndDay', compact('services', 'day', 'vacations', 'city'));
+        $data = [
+            'city_id' => $city->id,
+            'day_id' => $day->id,
+            'location_id' => $city->locations->first()->id,
+        ];
+
+        if ($city->konfiapp_default_type) $data['konfiapp_event_type'] = $city->konfiapp_default_type;
+
+        $service = Service::create($data);
+        $service->update(['slug' => $service->createSlug()]);
+        return redirect()->route('service.edit', $service->slug);
     }
 
     /**

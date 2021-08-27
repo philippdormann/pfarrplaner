@@ -47,7 +47,7 @@
                     <span class="float-right fa fa-download"></span>
                 </div>
             </div>
-            <div class="liturgy-sheet btn btn-light" @click.prevent="downloadAnnouncements">
+            <div v-if="!hasAnnouncements" class="liturgy-sheet btn btn-light" @click.prevent="downloadAnnouncements">
                 <b><span class="fa fa-file-word"></span> Bekanntgaben</b><br/>
                 <small>.docx, ca. 20 kB</small>
                 <span class="float-right fa fa-download"></span>
@@ -62,7 +62,7 @@
         <h3>Dateien hinzufügen</h3>
         <div v-if="uploading">Datei wird hochgeladen... <span class="fa fa-spinner fa-spin"></span></div>
         <form-file-uploader :parent="myService"
-                            :upload-route="route('service.attach', this.myService.id)"
+                            :upload-route="route('service.attach', this.myService.slug)"
                             v-model="myService.attachments"/>
 
         <modal v-for="(sheet,sheetKey) in liturgySheets" v-if="dialogs[sheet.key]" :title="sheet.title + ' herunterladen'"
@@ -81,8 +81,9 @@ import FormInput from "../../Ui/forms/FormInput";
 import FormGroup from "../../Ui/forms/FormGroup";
 import FormFileUpload from "../../Ui/forms/FormFileUpload";
 import Modal from "../../Ui/modals/Modal";
-import FullTextLiturgySheetConfiguration from "../../LiturgyEditor/LiturgySheets/FullTextLiturgySheetConfiguration";
 import FormFileUploader from "../../Ui/forms/FormFileUploader";
+import FullTextLiturgySheetConfiguration from "../../LiturgyEditor/LiturgySheets/FullTextLiturgySheetConfiguration";
+import SongPPTLiturgySheetConfiguration from "../../LiturgyEditor/LiturgySheets/SongPPTLiturgySheetConfiguration";
 
 export default {
     name: "AttachmentsTab",
@@ -94,6 +95,7 @@ export default {
         FormInput,
         Attachment,
         FullTextLiturgySheetConfiguration,
+        SongPPTLiturgySheetConfiguration,
     },
     props: {
         service: Object,
@@ -103,7 +105,14 @@ export default {
     computed: {
         hasAutoAttachments() {
             return true;
-        }
+        },
+        hasAnnouncements() {
+            let found = false;
+            this.service.attachments.forEach(attachment => {
+                found = found || (attachment.title == 'Bekanntgaben');
+            });
+            return found;
+        },
     },
     data() {
         var myService = this.service;
@@ -122,9 +131,9 @@ export default {
     methods: {
         downloadSheet(sheet) {
             if (sheet.configurationPage) {
-                this.$inertia.visit(route('services.liturgy.configure', {service: this.service.id, key: sheet.key}));
+                this.$inertia.visit(route('liturgy.configure', {service: this.service.slug, key: sheet.key}));
             } else {
-                window.location.href = route('services.liturgy.download', {service: this.service.id, key: sheet.key});
+                window.location.href = route('liturgy.download', {service: this.service.slug, key: sheet.key});
             }
         },
         downloadConfiguredSheet(sheet) {
@@ -143,7 +152,7 @@ export default {
             this.$forceUpdate();
         },
         deleteAttachment(attachment, key) {
-            axios.delete(route('service.detach', {service: this.myService.id, attachment: attachment.id}))
+            axios.delete(route('service.detach', {service: this.myService.slug, attachment: attachment.id}))
             .then(response => {
                 this.myService.attachments = response.data;
             });
@@ -162,7 +171,7 @@ export default {
             console.log(file, fd);
 
             this.uploading = true;
-            axios.post(route('service.attach', this.service.id), fd, {
+            axios.post(route('service.attach', this.service.slug), fd, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

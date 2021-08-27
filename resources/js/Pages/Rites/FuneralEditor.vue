@@ -141,19 +141,19 @@
                                     <participants :participants="myFuneral.service.pastors"></participants>
                                 </div>
                                 <div class="col-md-3 text-right">
-                                    <inertia-link :href="route('services.edit', funeral.service.id)"
+                                    <inertia-link :href="route('service.edit', funeral.service.slug)"
                                                   title="Gottesdienst bearbeiten"
                                                   class="btn btn-light">
                                         <span class="fa fa-edit"></span> <span
                                         class="d-none d-md-inline">Gottesdienst</span>
                                     </inertia-link>
-                                    <inertia-link :href="route('services.liturgy.editor', funeral.service.id)"
+                                    <inertia-link :href="route('liturgy.editor', funeral.service.slug)"
                                                   title="Liturgie bearbeiten"
                                                   class="btn btn-light">
                                         <span class="fa fa-th-list"></span> <span
                                         class="d-none d-md-inline">Liturgie</span>
                                     </inertia-link>
-                                    <inertia-link :href="route('services.sermon.editor', funeral.service.id)"
+                                    <inertia-link :href="route('service.sermon.editor', funeral.service.slug)"
                                                   title="Predigt bearbeiten"
                                                   class="btn btn-light">
                                         <span class="fa fa-microphone"></span> <span

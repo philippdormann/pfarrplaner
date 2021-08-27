@@ -49,6 +49,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -182,17 +183,6 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
      * @param int $id
@@ -203,7 +193,7 @@ class UserController extends Controller
         $user = User::find($id);
         $cities = City::all();
         $roles = Role::all()->sortBy('name');
-        $parishes = Parish::whereIn('city_id', Auth::user()->cities)->get();
+        $parishes = Parish::whereIn('city_id', Auth::user()->cities->pluck('id'))->get();
         $homescreen = $user->getSetting('homeScreen', 'route:calendar');
         $users = User::all();
         return view('users.edit', compact('user', 'cities', 'homescreen', 'roles', 'parishes', 'users'));
@@ -486,9 +476,12 @@ class UserController extends Controller
     /**
      * @return RedirectResponse
      */
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('login');
     }
 
@@ -534,7 +527,7 @@ class UserController extends Controller
         // special treatment if the submitter is a local admin
         if (Auth::user()->isLocalAdmin) {
             // on create:
-            if ($request->route()->getName() == 'users.store') {
+            if ($request->route()->getName() == 'user.store') {
                 // check if at least one permission is set
                 $rules['cityPermission'] = [new CreatedInLocalAdminDomain()];
 

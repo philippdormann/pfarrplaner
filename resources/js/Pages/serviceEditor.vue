@@ -53,12 +53,12 @@
                     </a>
 
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <a class="dropdown-item" :href="route('services.ical', {service: service.id})">In Outlook übernehmen</a>
+                        <a class="dropdown-item" :href="route('service.ical', {service: service.slug})">In Outlook übernehmen</a>
                         <a class="dropdown-item" :href="route('reports.setup', {report: 'regulatory', service: service.id})">Meldung an das Ordnungsamt</a>
                     </div>
                 </div>
-                <a class="btn btn-light" :href="route('services.liturgy.editor', service.id)" title="Liturgie zu diesem Gottesdienst bearbeiten"><span class="fa fa-th-list"></span><span class="d-none d-md-inline"> Liturgie</span></a>&nbsp;
-                <a class="btn btn-light" :href="route('services.sermon.editor', service.id)"  title="Predigt zu diesem Gottesdienst bearbeiten"><span class="fa fa-microphone"></span><span class="d-none d-md-inline"> Predigt</span></a>&nbsp;
+                <a class="btn btn-light" :href="route('liturgy.editor', service.slug)" title="Liturgie zu diesem Gottesdienst bearbeiten"><span class="fa fa-th-list"></span><span class="d-none d-md-inline"> Liturgie</span></a>&nbsp;
+                <a class="btn btn-light" :href="route('service.sermon.editor', service.slug)"  title="Predigt zu diesem Gottesdienst bearbeiten"><span class="fa fa-microphone"></span><span class="d-none d-md-inline"> Predigt</span></a>&nbsp;
             </template>
             <form @submit.prevent="saveService" id="formSermon">
                 <card>
@@ -155,6 +155,13 @@ name: "serviceEditor",
         backRoute: String,
     },
     computed: {
+        hasAnnouncements() {
+            let found = false;
+            this.service.attachments.forEach(attachment => {
+                found = found || (attachment.title == 'Bekanntgaben');
+            });
+            return found;
+        },
         peopleCount() {
             var count = this.editedService.pastors.length
                 + this.editedService.organists.length
@@ -205,12 +212,12 @@ name: "serviceEditor",
                 fd.append(key, value || '');
             }
             // send the request
-            this.$inertia.patch(route('services.update', this.service.id), record, {
+            this.$inertia.patch(route('service.update', this.service.slug), record, {
                 preserveState: false
             });
         },
         deleteService() {
-            this.$inertia.delete(route('services.destroy', this.editedService.id), {}, { preserveState: false});
+            this.$inertia.delete(route('service.destroy', this.editedService.slug), {}, { preserveState: false});
         },
         extractParticipants(e) {
             var items = [];
@@ -235,7 +242,7 @@ name: "serviceEditor",
             if (this.editedService.konfiapp_event_qr) ctr++;
 
             // default auto attachments:
-            ctr += 1;
+            if (!this.hasAnnouncements) ctr++;
 
             return ctr;
         },

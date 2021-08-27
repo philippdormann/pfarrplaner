@@ -69,23 +69,15 @@ class HomeController extends Controller
     }
 
     /**
-     * Route /
-     */
-    public function root()
-    {
-        if (Auth::user()) {
-            return redirect()->route('home');
-        }
-        return redirect()->route('login');
-    }
-
-    /**
      * Show the application dashboard.
      *
      * @return Renderable
      */
     public function index($activeTab = '')
     {
+        if (!Auth::user()) {
+            return redirect()->route('login');
+        }
         RedirectorService::saveCurrentRoute();
         // check if the user still has a temp password
         if (Hash::check('testtest', Auth::user()->password)) {
@@ -142,63 +134,6 @@ class HomeController extends Controller
         return redirect()->back()->with("success", "Dein Passwort wurde geändert.");
     }
 
-    public function connect()
-    {
-        /*
-        $user = Auth::user();
-        $token = $user->getToken();
-        $cities = Auth::user()->visibleCities;
-        $name = explode(' ', Auth::user()->name);
-        $name = end($name);
-        return view('ical.connect', ['user' => $user, 'token' => $token, 'cities' => $cities, 'name' => $name]);
-        */
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function whatsnew()
-    {
-        $messages = VersionInfo::getMessages()->sortByDesc('date');
-        Auth::user()->setSetting('new_features', Carbon::now());
-        return view('whatsnew', compact('messages'));
-    }
-
-    /**
-     * @param $counter
-     * @return JsonResponse
-     */
-    public function counters($counter)
-    {
-        $data = [];
-        switch ($counter) {
-            case 'users':
-                $count = count(User::where('password', '!=', '')->get());
-                break;
-            case 'services':
-                $count = count(
-                    Service::whereHas(
-                        'day',
-                        function ($query) {
-                            $query->where('date', '>=', Carbon::now());
-                        }
-                    )->get()
-                );
-                break;
-            case 'locations':
-                $count = count(Location::all());
-                break;
-            case 'cities':
-                $count = count(City::all());
-                break;
-            case 'online':
-                $data['users'] = visitor()->onlineVisitors(User::class);
-                $count = count($data['users']);
-                break;
-        }
-        return response()->json(compact('count', 'data'));
-    }
-
     public function about()
     {
         // get version
@@ -207,8 +142,10 @@ class HomeController extends Controller
         $date = (new Carbon(filemtime(base_path('package.json'))))->setTimeZone('Europe/Berlin');
         $changelog = file_get_contents(base_path('CHANGELOG.md'));
         $env = App::environment();
+        $phpVersion = phpversion();
+        $laravelVersion = app()->version();
 
-        return Inertia::render('About', compact('version', 'date', 'changelog', 'env'));
+        return Inertia::render('About', compact('version', 'date', 'changelog', 'env', 'phpVersion', 'laravelVersion'));
     }
 
 

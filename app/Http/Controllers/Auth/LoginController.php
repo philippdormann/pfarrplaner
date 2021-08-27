@@ -35,7 +35,9 @@ use App\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
 
 /**
  * Class LoginController
@@ -61,7 +63,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -76,8 +78,10 @@ class LoginController extends Controller
     /**
      * @return Application|Factory|View
      */
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         if (env('DEMO_MODE')) {
             $users = User::with('roles', 'homeCities')->get();
             return view('demo.login', compact('users'));
