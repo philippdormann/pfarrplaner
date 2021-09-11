@@ -3,7 +3,7 @@
     "type": "project",
     "description": "Service and vacation planning for a district of Lutheran churches",
     "license": "GPL-3.0-or-later",
-    "version": "1.78.2",
+    "version": "1.78.3",
     "repositories": [
         {
             "type": "vcs",
@@ -32,7 +32,7 @@
         "niklasravnsborg/laravel-pdf": "^4.0",
         "php-ews/php-ews": "^1.0",
         "phpoffice/phppresentation": "dev-master",
-        "phpoffice/phpspreadsheet": "^1.6",
+        "phpoffice/phpspreadsheet": "^1.8",
         "phpoffice/phpword": "^0.18.2",
         "predis/predis": "^1.1",
         "rap2hpoutre/laravel-log-viewer": "^1.3",

@@ -68,7 +68,7 @@ class KonfiAppIntegration extends AbstractIntegration
     public function __construct($apiKey)
     {
         $this->setApiKey($apiKey);
-        $this->setClient(new Client(['base_uri' => self::API_URL, 'headers' => ["X-KonfiApp-Token" => $this->apiKey]]));
+        $this->setClient(new Client(['base_uri' => self::API_URL]));
     }
 
     /**
@@ -102,11 +102,29 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     public function listEventTypes()
     {
-        return collect($this->fetchData('verwaltung/veranstaltungen/')->payload->veranstaltungen);
+        return collect($this->requestData('verwaltung/veranstaltungen/')->payload->veranstaltungen);
     }
 
     /**
-     * Send a request to the public API for KonfiApp and return the contents of the response's data field
+     * Send a GET request to the public API for KonfiApp and return the contents of the response's data field
+     *
+     * @param $requestType
+     * @param $path
+     * @param array $arguments
+     * @return mixed Response data field
+     * @throws Exception
+     */
+    protected function requestData($path, $arguments = [])
+    {
+        $response = $this->request('POST', $path, $arguments);
+        if ($response->getStatusCode() != 200) {
+            throw new Exception ('Could not retrieve event types from KonfiApp.');
+        }
+        return json_decode((string)$response->getBody());
+    }
+
+    /**
+     * Send a POST request to the public API for KonfiApp and return the contents of the response's data field
      *
      * @param $requestType
      * @param $path
@@ -118,27 +136,12 @@ class KonfiAppIntegration extends AbstractIntegration
     {
         $response = $this->request('POST', $path, $arguments);
         if ($response->getStatusCode() != 200) {
-            throw new Exception('Could not retrieve event types from KonfiApp.');
+            throw new Exception ('Could not post to KonfiApp.');
         }
         return json_decode((string)$response->getBody());
     }
-    /**
-     * Send a GET request to the public API for KonfiApp and return the contents of the response's data field
-     *
-     * @param $requestType
-     * @param $path
-     * @param array $arguments
-     * @return mixed Response data field
-     * @throws Exception
-     */
-    protected function fetchData($path, $arguments = [])
-    {
-        $response = $this->request('GET', $path, $arguments);
-        if ($response->getStatusCode() != 200) {
-            throw new Exception('Could not perform GET operation at KonfiApp API.');
-        }
-        return json_decode((string)$response->getBody());
     }
+
     /**
      * Send a DELETE request to the public API for KonfiApp and return the contents of the response's data field
      *
@@ -150,9 +153,9 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     protected function deleteData($path, $arguments = [])
     {
-        $response = $this->request('DELETE', $path, $arguments);
+        $response = $this->request('POST', $path, $arguments);
         if ($response->getStatusCode() != 200) {
-            throw new Exception('Could not perform DELETE operation at KonfiApp API.');
+            throw new Exception ('Could not post to KonfiApp.');
         }
         return json_decode((string)$response->getBody());
     }
@@ -169,6 +172,7 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     protected function request($requestType, $path, $arguments = []): ResponseInterface
     {
+        $arguments['apikey'] = $this->apiKey;
         return $this->client->request(
             $requestType,
             $path,
@@ -192,6 +196,10 @@ class KonfiAppIntegration extends AbstractIntegration
         if ($service->konfiapp_event_type != '') {
             if ($service->konfiapp_event_qr == '') {
                 Log::debug('Updating service #'.$service->id.', no KonfiApp QR set yet.');
+                if (!trim($service->time)) {
+                    Log::debug('No service time set yet, aborting.');
+                    return;
+                }
                 $code = $this->createQRCode($service);
                 Log::debug('Got code '.$code);
                 $service->update(['konfiapp_event_qr' => $code]);
@@ -222,7 +230,8 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     public function createQRCode(Service $service)
     {
-        $serviceTime = Carbon::createFromTimeString($service->day->date->format('Y-m-d') . ' ' . $service->time);
+        $time = ($service->time == ':0') ? '' : ($service->time ?: '');
+        $serviceTime = Carbon::createFromTimeString(trim($service->day->date->format('Y-m-d') . ' ' . $time));
         return ($this->postData(
             'verwaltung/veranstaltungen/qr/',
             [
@@ -242,7 +251,7 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     public function deleteQRCodeByCode($code, $type)
     {
-        $codes = $this->fetchData(
+        $codes = $this->deleteData(
             'verwaltung/veranstaltungen/qr/',
             [
                 'veranstaltungID' => $type,
@@ -291,7 +300,7 @@ class KonfiAppIntegration extends AbstractIntegration
      */
     public function listQRCodes()
     {
-        return $this->fetchData('verwaltung/veranstaltungen/qr/', ['veranstaltungID' => 682])->detail;
+        return $this->requestData('verwaltung/veranstaltungen/qr/', ['veranstaltungID' => 682])->detail;
     }
 
     /**
