@@ -103,11 +103,12 @@ class HomeController extends Controller
     }
 
     /**
-     * @return Application|Factory|View
+     * @return \Inertia\Response
      */
     public function showChangePassword()
     {
-        return view('auth.passwords.change');
+        $originalPassword = Hash::check('testtest', Auth::user()->password);
+        return Inertia::render('Auth/PasswordChanger', compact('originalPassword'));
     }
 
     /**
@@ -128,10 +129,7 @@ class HomeController extends Controller
         $validatedData = $request->validate($rules);
         //Change Password
         Auth::user()->update(['password' => $validatedData['new_password']]);
-        if ($firstPassword) {
-            return redirect()->route('home')->with("success", "Dein Passwort wurde geändert.");
-        }
-        return redirect()->back()->with("success", "Dein Passwort wurde geändert.");
+        return redirect()->route('home')->with("success", "Dein Passwort wurde geändert.");
     }
 
     public function about()

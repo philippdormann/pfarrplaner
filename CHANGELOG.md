@@ -2,6 +2,155 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.82.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.82.0...v1.82.1) (2021-11-14)
+
+
+### Features
+
+* Prevent opening PlanningInputForm without any ministries selected ([57e6a67](https://github.com/pfarrplaner/pfarrplaner/commits/57e6a67812c6f71b9822544be14e99f9cd901bbd))
+
+
+### Bug Fixes
+
+* Debug output prevents saving services ([d1333a9](https://github.com/pfarrplaner/pfarrplaner/commits/d1333a9ae4a7bac0e11d290e0888a8cdae4bb47c))
+
+## [1.82.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.81.1...v1.82.0) (2021-11-13)
+
+
+### Features
+
+* Completely rewrote PlanningInput ([3504396](https://github.com/pfarrplaner/pfarrplaner/commits/3504396c9578f275f1d3860ae10135bfabc74981))
+
+### [1.81.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.81.0...v1.81.1) (2021-10-30)
+
+
+### Features
+
+* Improved cache-busting for JS ([5038cc2](https://github.com/pfarrplaner/pfarrplaner/commits/5038cc2e615224fec2bff5b5808f0cb90c7f9cff))
+
+## [1.81.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.80.0...v1.81.0) (2021-10-30)
+
+
+### Features
+
+* Highlight recipient name in instruction text ([75d0e9e](https://github.com/pfarrplaner/pfarrplaner/commits/75d0e9e80a3cf95d2214530da9dfd7b73ac87b2c))
+* More options for A4WordSpecificLiturgySheet ([71fa6a8](https://github.com/pfarrplaner/pfarrplaner/commits/71fa6a87c1c70631aa973f0cced4e6a65b76b7bd))
+
+
+### Bug Fixes
+
+* Item recipients should be individual persons ([05e3932](https://github.com/pfarrplaner/pfarrplaner/commits/05e3932a84037584c2476ffcb4ab3f7ca83fed7b))
+
+## [1.80.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.79.3...v1.80.0) (2021-10-29)
+
+
+### Features
+
+* Add A4WordSpecificLiturgySheet ([97bf6f5](https://github.com/pfarrplaner/pfarrplaner/commits/97bf6f5248bf7e5eb262e8b83c7c481747bdae84))
+* Implement first password change view in Vue ([3f6247b](https://github.com/pfarrplaner/pfarrplaner/commits/3f6247b7b07e260c165e762d0338b49472df1dde)), closes [#159](https://github.com/pfarrplaner/pfarrplaner/issues/159)
+* Show alert in NextServicesTab when no services are planned ([a45c400](https://github.com/pfarrplaner/pfarrplaner/commits/a45c40029bb7f84034f05ea159aa8e9bbd06e95d)), closes [#160](https://github.com/pfarrplaner/pfarrplaner/issues/160)
+
+
+### Bug Fixes
+
+* Add missing name attribute ([26213f1](https://github.com/pfarrplaner/pfarrplaner/commits/26213f1e468415ef74c8fe5ce8ab4a37c6468189))
+* Use less data for filling import source list ([b1970d1](https://github.com/pfarrplaner/pfarrplaner/commits/b1970d1ea2a59f974e9a2ac9b703f30067ce69df)), closes [#166](https://github.com/pfarrplaner/pfarrplaner/issues/166)
+* Use Microsoft 365-based exchange server for sync ([63d934e](https://github.com/pfarrplaner/pfarrplaner/commits/63d934e7e6866468911c35703b267c0e98cd4b9e)), closes [#162](https://github.com/pfarrplaner/pfarrplaner/issues/162)
+
+### [1.79.3](https://github.com/pfarrplaner/pfarrplaner/compare/v1.79.2...v1.79.3) (2021-10-29)
+
+
+### Bug Fixes
+
+* AbstractLiturgySheet throws an exception for guest user ([2a4f9b2](https://github.com/pfarrplaner/pfarrplaner/commits/2a4f9b2793401ea4810333553cf3f690eb85b453))
+* Menu not closable in mobile view ([deef512](https://github.com/pfarrplaner/pfarrplaner/commits/deef512936c81d47e49a88c4c53774c3815bbcd4)), closes [#161](https://github.com/pfarrplaner/pfarrplaner/issues/161)
+* Reactivity problems on mobile calendar view ([2ca6a52](https://github.com/pfarrplaner/pfarrplaner/commits/2ca6a52636bd638bd920cd07fa2d7c58bfe92ba8))
+* Redirect to empty screen after password change ([3a18949](https://github.com/pfarrplaner/pfarrplaner/commits/3a189494fc9f6cbee016d878d49c7ddcb8ba6f3b))
+* Use cache-busting for bundled JS ([06a5870](https://github.com/pfarrplaner/pfarrplaner/commits/06a5870cf5ff93c2d7495591fc0626f62ba0e555)), closes [#164](https://github.com/pfarrplaner/pfarrplaner/issues/164)
+
+### [1.79.2](https://github.com/pfarrplaner/pfarrplaner/compare/v1.79.1...v1.79.2) (2021-10-19)
+
+
+### Features
+
+* Allow adding instructions to FullTextLiturgySheet ([432b323](https://github.com/pfarrplaner/pfarrplaner/commits/432b3239780590a78ea8149661103db4f2ed449e))
+* Allow adding instructions to FullTextLiturgySheet ([80dc111](https://github.com/pfarrplaner/pfarrplaner/commits/80dc111c5233f214b31b15129d6cc0fd663c7792))
+
+
+### Bug Fixes
+
+* Assigned ministries do not show up in PeoplePane ([2a7a32d](https://github.com/pfarrplaner/pfarrplaner/commits/2a7a32d73dffebf7121f33200bb08bf9d65bb0b1))
+* Cannot create new wedding records ([3e1e81b](https://github.com/pfarrplaner/pfarrplaner/commits/3e1e81be5f1b11a089d51ce0ee5f3efeb4192460))
+
+### [1.79.1](https://github.com/pfarrplaner/pfarrplaner/compare/v1.79.0...v1.79.1) (2021-10-08)
+
+
+### Bug Fixes
+
+* Array defaults should be set with factory function ([429b69f](https://github.com/pfarrplaner/pfarrplaner/commits/429b69f195231c85239e8d4619b2c3e8dc4334dd))
+* Gracefully handle null entries ([814c636](https://github.com/pfarrplaner/pfarrplaner/commits/814c636cb2a013fcc665eaf94c0f48812e3d996a))
+
+## [1.79.0](https://github.com/pfarrplaner/pfarrplaner/compare/v1.78.9...v1.79.0) (2021-10-08)
+
+
+### Features
+
+* Update PeopleSelect architecture to work with teams ([c201777](https://github.com/pfarrplaner/pfarrplaner/commits/c201777b38bb511e0ab1b538f5bcf02218b65fa6))
+
+### [1.78.9](https://github.com/pfarrplaner/pfarrplaner/compare/v1.78.8...v1.78.9) (2021-10-07)
+
+
+### Bug Fixes
+
+* Hide edit buttons for non-editable services ([9989a0a](https://github.com/pfarrplaner/pfarrplaner/commits/9989a0a5c3e3438279cf5ac586c0d9ea48617cc1))
+* Service edit form shows no location if user has no rights for the city (but may be pastor/...) ([27dcecc](https://github.com/pfarrplaner/pfarrplaner/commits/27dceccc43705a99198f5dafebbfda62a6349768))
+* Show own rites from any church ([84da979](https://github.com/pfarrplaner/pfarrplaner/commits/84da979d000392b40f98035733aa5057210326d6))
+* Show own services from any church ([f294873](https://github.com/pfarrplaner/pfarrplaner/commits/f294873d254eb3634bd077d9a8f9f43dc56f7bad))
+
+### [1.78.8](https://github.com/pfarrplaner/pfarrplaner/compare/v1.78.7...v1.78.8) (2021-10-07)
+
+
+### Features
+
+* Allow creation of teams to group users together ([4001796](https://github.com/pfarrplaner/pfarrplaner/commits/40017969d0146c77d3614c028e60598e8570dd1a))
+
+
+### Bug Fixes
+
+* Cannot change password from form ([1c036be](https://github.com/pfarrplaner/pfarrplaner/commits/1c036beaf5646d339136769c88bd5fdea1b5a7ac))
+* Setting HomeScreenTabs not possible for new users ([02b2828](https://github.com/pfarrplaner/pfarrplaner/commits/02b28289944ba3e03ab0296b59af9e46bed82685))
+* User creation fails ([2b9b299](https://github.com/pfarrplaner/pfarrplaner/commits/2b9b2990be2b1eb205024fa5e64e215ba2fc8049))
+* User creation fails because breadcrumb is missing ([7172f18](https://github.com/pfarrplaner/pfarrplaner/commits/7172f18a527d86200c5d23100f057bc2af31bd8c))
+
+### [1.78.7](https://github.com/pfarrplaner/pfarrplaner/compare/v1.78.6...v1.78.7) (2021-10-01)
+
+
+### Bug Fixes
+
+* AnnouncementsReport fails when certain fields are not set ([d06a716](https://github.com/pfarrplaner/pfarrplaner/commits/d06a716693676edddaaaf5dfffc120a797001f01))
+* SongSheetLiturgySheet fails on empty psalm/song items ([251f1bf](https://github.com/pfarrplaner/pfarrplaner/commits/251f1bf8f3ce0f9db54cd43a813e1934f6aa9c0f))
+
+### [1.78.6](https://github.com/pfarrplaner/pfarrplaner/compare/v1.78.5...v1.78.6) (2021-09-30)
+
+
+### Bug Fixes
+
+* Delete baptism request fails because service is null ([9a1bbf9](https://github.com/pfarrplaner/pfarrplaner/commits/9a1bbf90a128c9806b449b6835e4a0cab520a190))
+
+### [1.78.5](https://github.com/pfarrplaner/pfarrplaner/compare/v1.78.4...v1.78.5) (2021-09-17)
+
+
+### Bug Fixes
+
+* Service ical returns error 404 ([27bbded](https://github.com/pfarrplaner/pfarrplaner/commits/27bbded93a060ab539f4c62ddbc9541a949b6d8b))
+
+### [1.78.4](https://github.com/pfarrplaner/pfarrplaner/compare/v1.78.3...v1.78.4) (2021-09-13)
+
+
+### Bug Fixes
+
+* PeoplePane crashes on some empty items ([daa37e7](https://github.com/pfarrplaner/pfarrplaner/commits/daa37e7356cb327cb8667365d5c1b75d623fbfad))
+
 ### [1.78.3](https://github.com/pfarrplaner/pfarrplaner/compare/v1.78.2...v1.78.3) (2021-09-10)
 
 

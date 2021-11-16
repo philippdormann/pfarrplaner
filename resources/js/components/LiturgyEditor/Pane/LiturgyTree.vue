@@ -181,13 +181,12 @@
                             }">
                     <optgroup label="Vorlagen">
                         <option v-for="agenda in agendas" :value="agenda.id">
-                            {{ agenda.title }}{{ (agenda.source ? ' (' + agenda.source + ')' : '') }}
+                            {{ agenda.text }}
                         </option>
                     </optgroup>
                     <optgroup label="Gottesdienste">
                         <option v-for="service in services" :value="service.id">
-                            {{ moment(service.day.date).format('DD.MM.YYYY') }}, {{ service.timeText }} -
-                            {{ service.titleText }} ({{ service.locationText }})
+                            {{ service.text }})
                         </option>
                     </optgroup>
                 </selectize>
@@ -216,6 +215,7 @@ import Modal from "../../Ui/modals/Modal";
 import LiturgySheetLink from "../Elements/LiturgySheetLink";
 import FormSelectize from "../../Ui/forms/FormSelectize";
 import FullTextLiturgySheetConfiguration from "../LiturgySheets/FullTextLiturgySheetConfiguration";
+import A4WordSpecificLiturgySheetConfiguration from "../LiturgySheets/A4WordSpecificLiturgySheetConfiguration";
 import SongPPTLiturgySheetConfiguration from "../LiturgySheets/SongPPTLiturgySheetConfiguration";
 
 export default {
@@ -231,6 +231,7 @@ export default {
         Selectize,
         FullTextLiturgySheetConfiguration,
         SongPPTLiturgySheetConfiguration,
+        A4WordSpecificLiturgySheetConfiguration,
     },
     props: {
         service: Object,

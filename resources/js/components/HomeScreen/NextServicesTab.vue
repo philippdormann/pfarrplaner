@@ -31,8 +31,9 @@
     <div class="next-services-tab">
         <h2>{{ title }}</h2>
         <p>Angezeigt werden die Gottesdienste der nächsten 2 Monate.</p>
+        <div class="alert alert-info" v-if="services.length == 0">Es sind keine anzuzeigenden Gottesdienste vorhanden.</div>
         <fake-table :columns="[2,4,4,2]" :headers="['Gottesdienst', 'Liturgie', 'Infos zum Gottesdienst', '']"
-                    collapsed-header="Gottesdienste">
+                    collapsed-header="Gottesdienste" v-if="services.length > 0">
             <div v-for="(service,serviceIndex) in services" :key="serviceIndex"
                  :class="{'stripe-odd': (serviceIndex %2 ==0)}" class="row mb-3 p-1">
                 <div class="col-md-2">
@@ -49,15 +50,18 @@
                                   :href="route('calendar', moment(service.day.date).format('YYYY-MM'))">
                         <span class="fa fa-calendar"></span>
                     </inertia-link>
-                    <inertia-link class="btn btn-primary" title="Gottesdienst bearbeiten"
+                    <inertia-link v-if="service.isEditable"
+                                  class="btn btn-primary" title="Gottesdienst bearbeiten"
                                   :href="route('service.edit', service.slug)">
                         <span class="fa fa-edit"></span>
                     </inertia-link>
-                    <inertia-link class="btn btn-light" title="Liturgie bearbeiten"
+                    <inertia-link v-if="service.isEditable"
+                                  class="btn btn-light" title="Liturgie bearbeiten"
                                   :href="route('liturgy.editor', service.slug)">
                         <span class="fa fa-th-list"></span>
                     </inertia-link>
-                    <inertia-link class="btn btn-light" title="Predigt bearbeiten"
+                    <inertia-link v-if="service.isEditable"
+                                  class="btn btn-light" title="Predigt bearbeiten"
                                   :href="route('service.sermon.editor', service.slug)">
                         <span class="fa fa-microphone"></span>
                     </inertia-link>

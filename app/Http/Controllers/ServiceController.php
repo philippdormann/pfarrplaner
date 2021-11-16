@@ -40,18 +40,21 @@ use App\Events\ServiceBeforeUpdate;
 use App\Events\ServiceCreated;
 use App\Events\ServiceUpdated;
 use App\Http\Requests\ServiceRequest;
+use App\Liturgy;
 use App\Liturgy\LiturgySheets\LiturgySheets;
 use App\Location;
 use App\Service;
 use App\ServiceGroup;
 use App\Services\RedirectorService;
 use App\Tag;
+use App\Team;
 use App\Traits\HandlesAttachmentsTrait;
 use App\User;
 use App\Vacations;
 use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -133,10 +136,15 @@ class ServiceController extends Controller
             ->orderByDesc('date')->get()->makeHidden(['liturgy'])->toArray();
 
         $ministries = DB::table('service_user')->select('category')->distinct()->get();
+
+        $availableCities = Auth::user()->cities->pluck('id');
+        if (!$availableCities->contains($service->city_id)) $availableCities->push($service->city_id);
+
         $locations = Location::whereIn('city_id', Auth::user()->cities->pluck('id'))->get();
         $liturgySheets = LiturgySheets::all();
 
         $users = User::all();
+        $teams = Team::with('users')->where('city_id', $service->city_id)->get();
 
         $backRoute = RedirectorService::backRoute();
 
@@ -155,6 +163,7 @@ class ServiceController extends Controller
                 'days',
                 'liturgySheets',
                 'backRoute',
+                'teams',
             )
         );
     }
@@ -190,12 +199,6 @@ class ServiceController extends Controller
             $service->storeDiff();
             event(new ServiceUpdated($service, $originalParticipants));
             $success = 'Der Gottesdienst wurde mit geänderten Angaben gespeichert.';
-
-            // update YouTube as well (but only if there's a connected account for this city
-            if (($service->youtube_url != '') && ($service->city->google_access_token != '')) {
-                Broadcast::get($service)->update();
-                $success .= ' Diese wurden automatisch auch auf YouTube aktualisiert.';
-            }
         }
 
         $service->refresh();
@@ -257,9 +260,9 @@ class ServiceController extends Controller
      * Export a service as ical
      * @param $service Service
      */
-    public function ical($service)
+    public function ical(Service $service)
     {
-        $services = [Service::findOrFail($service)];
+        $services = [$service];
         $raw = View::make('ical.ical', ['services' => $services, 'token' => null]);
 
         $raw = str_replace(
@@ -271,7 +274,7 @@ class ServiceController extends Controller
             ->header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
             ->header('Expires', '0')
             ->header('Content-Type', 'text/calendar')
-            ->header('Content-Disposition', 'inline; filename=' . $service . '.ics');
+            ->header('Content-Disposition', 'inline; filename=' . $service->slug . '.ics');
     }
 
     /**
@@ -348,4 +351,21 @@ class ServiceController extends Controller
         $attachment->delete();
         return response()->json($service->attachments);
     }
+
+    /**
+     * @param Service $service
+     * @return JsonResponse
+     */
+    public function data(Service $service)
+    {
+        $service->load(
+            ['location', 'city', 'participants', 'weddings', 'funerals', 'baptisms', 'day', 'tags', 'serviceGroups']
+        );
+        $service->liturgy = Liturgy::getDayInfo($service->day);
+        if (isset($liturgy['title']) && ($service->day->name == '')) {
+            $service->day->name = $service->liturgy['title'];
+        }
+        return response()->json($service);
+    }
+
 }
